@@ -1,116 +1,206 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>ProGames Login</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #0b0b0d;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pro Games</title>
 
-        .container {
-            background: #15151b;
-            padding: 40px;
-            border-radius: 16px;
-            width: 350px;
-            text-align: center;
-            box-shadow: 0 0 25px rgba(0, 255, 153, 0.2);
-            border: 1px solid #1f1f25;
-            opacity: 0;
-            animation: fadeIn 0.8s forwards ease-out;
-        }
+  <!-- Modern Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
 
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #0e0f12;
+      color: #fff;
+      padding: 20px;
+    }
 
-        .logoText {
-            font-size: 40px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            background: linear-gradient(90deg, #00ff9d, #00ffa3, #00ff9d);
-            -webkit-background-clip: text;
-            color: transparent;
-            text-shadow: 0 0 10px #00ff9d, 0 0 20px #00ff9d;
-            letter-spacing: 2px;
-        }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
 
-        h2 {
-            margin-bottom: 20px;
-            font-size: 22px;
-            color: #00ff9d;
-            text-shadow: 0 0 10px #00ff9d;
-        }
+    .header h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #ffd86b;
+      text-shadow: 0 0 20px rgba(255, 215, 100, 0.4);
+    }
 
-        input {
-            width: 90%;
-            padding: 12px;
-            border-radius: 10px;
-            border: none;
-            margin-top: 10px;
-            background: #0f0f13;
-            color: white;
-            font-size: 16px;
-        }
+    /* SEARCH BAR */
+    .search-filter-bar {
+      width: 100%;
+      max-width: 900px;
+      margin: 20px auto;
+      display: flex;
+      gap: 15px;
+    }
 
-        button {
-            width: 95%;
-            padding: 12px;
-            background: #00ff9d;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            margin-top: 15px;
-            cursor: pointer;
-            font-weight: bold;
-            color: #000;
-            transition: 0.2s;
-        }
+    .search-filter-bar input, .search-filter-bar select {
+      flex: 1;
+      padding: 12px 15px;
+      background: #1a1b20;
+      border: 1px solid #333;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: 0.2s;
+    }
 
-        button:hover {
-            background: #00d987;
-        }
+    .search-filter-bar input:focus, .search-filter-bar select:focus {
+      border-color: #ffd86b;
+      box-shadow: 0 0 8px rgba(255, 215, 100, 0.4);
+    }
 
-        #error {
-            margin-top: 15px;
-            color: #ff4c4c;
-            display: none;
-            font-size: 14px;
-        }
-    </style>
+    /* GRID */
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 30px;
+      margin: 30px auto;
+      max-width: 1300px;
+    }
+
+    /* GAME CARD */
+    .game-card {
+      position: relative;
+      background: #1a1b20;
+      border-radius: 14px;
+      overflow: hidden;
+      padding-bottom: 140%;
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .game-card:hover {
+      transform: translateY(-5px) scale(1.03);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+
+    .game-card img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .game-card .title {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      padding: 12px 10px;
+      background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0));
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #ffffff; /* FIXED - no more blue text */
+    }
+
+    /* FOOTER */
+    .footer {
+      margin-top: 40px;
+      text-align: center;
+      opacity: 0.8;
+    }
+    .footer ul { list-style: none; padding: 0; }
+  </style>
 </head>
 <body>
 
-<div class="container">
+  <div class="header">
+    <h1>Pro Games</h1>
+  </div>
 
-    <div class="logoText">ProGames</div>
-    <h2>Login</h2>
+  <!-- SEARCH + FILTERS -->
+  <div class="search-filter-bar">
+    <input type="text" id="searchInput" placeholder="Search games..." />
+    <select id="genreFilter">
+      <option value="all">All Genres</option>
+      <option value="arcade">Arcade</option>
+      <option value="action">Action</option>
+      <option value="puzzle">Puzzle</option>
+      <option value="strategy">Strategy</option>
+    </select>
+  </div>
 
-    <input type="password" id="passwordInput" placeholder="Enter password">
-    <button onclick="checkPassword()">Unlock</button>
+  <!-- GAME GRID -->
+  <div class="game-grid" id="gameGrid">
 
-    <p id="error">Incorrect password!</p>
-</div>
+    <!-- Example card structure (auto-generated by JS) -->
 
-<script>
-    function checkPassword() {
-        const correctPassword = "112233"; // change this!
-        const userPass = document.getElementById("passwordInput").value;
+  </div>
 
-        if (userPass === correctPassword) {
-            window.location.href = "home.html";
-        } else {
-            document.getElementById("error").style.display = "block";
-        }
+  
+
+  <div class="footer">
+    <h2>Recommended Browsers</h2>
+    <p>For best performance use:</p>
+    <ul>
+      <li>Microsoft Edge</li>
+      <li>Opera GX</li>
+      <li>Google Chrome</li>
+    </ul>
+  </div>
+
+
+  <script>
+    const games = [
+      { title: "Crossy Road", img: "images/crossyroad.png", url: "crossyroad/crossyroad.html", genre: "arcade" },
+      { title: "Minecraft", img: "images/minecraft.png", url: "minecraft.html", genre: "action" },
+      { title: "Block Towers", img: "images/block.png", url: "block/block.html", genre: "puzzle" },
+      { title: "Snake", img: "images/snake.png", url: "snake/snake.html", genre: "arcade" },
+      { title: "Subway Surfers", img: "images/subway.png", url: "subway/subway.html", genre: "arcade" },
+      { title: "Among Us", img: "images/among.png", url: "among/among.html", genre: "strategy" },
+      { title: "Chess", img: "images/chess.png", url: "chess/chess.html", genre: "strategy" },
+      { title: "FNAF", img: "images/fnaf.png", url: "fnaf/fnaf.html", genre: "action" },
+      { title: "BitLife", img: "images/bit.png", url: "bit/bit.html", genre: "strategy" },
+      { title: "Tomb of the Mask", img: "images/tomb.png", url: "tomb/tomb.html", genre: "arcade" },
+      { title: "Slope", img: "images/slope.png", url: "slope/slope.html", genre: "arcade" },
+      { title: "Grow a Garden", img: "images/grow.png", url: "grow/grow.html", genre: "puzzle" },
+	  { title: "Hill Climb Racing", img: "images/hill.png", url: "hill/hill.html", genre: "arcade" },
+      { title: "1v1 LOL", img: "images/lol.png", url: "lol/lol.html", genre: "action" },
+	  { title: "Monkey Mart", img: "images/monkey.png", url: "monkey/monkey.html", genre: "strategy" },
+	  { title: "Temple Run", img: "images/temple.png", url: "temple/temple.html", genre: "arcade" },
+      { title: "Zombie Road", img: "images/zombie.png", url: "zombie/zombie.html", genre: "arcade" },
+      { title: "Zombie Rush", img: "images/zombie2.png", url: "zombie2/zombie2.html", genre: "arcade" },
+      { title: "99 Nights In the Forest", img: "images/99.png", url: "99/99.html", genre: "action" },
+      { title: "8 Ball Pool", img: "images/8.png", url: "8/8.html", genre: "strategy" },
+      { title: "Drive Mad", img: "images/drive.png", url: "drive/drive.html", genre: "arcade" },
+      { title: "Escape Road", img: "images/escape.png", url: "escape/escape.html", genre: "arcade" },
+
+    ];
+
+    const grid = document.getElementById("gameGrid");
+
+    function renderGames() {
+      const search = document.getElementById("searchInput").value.toLowerCase();
+      const filter = document.getElementById("genreFilter").value;
+
+      grid.innerHTML = "";
+
+      games
+        .filter(game => game.title.toLowerCase().includes(search))
+        .filter(game => filter === "all" || game.genre === filter)
+        .forEach(game => {
+          const card = document.createElement("a");
+          card.href = game.url;
+          card.className = "game-card";
+          card.innerHTML = `
+            <img src="${game.img}" alt="${game.title}" />
+            <div class="title">${game.title}</div>
+          `;
+          grid.appendChild(card);
+        });
     }
-</script>
 
+    document.getElementById("searchInput").addEventListener("input", renderGames);
+    document.getElementById("genreFilter").addEventListener("change", renderGames);
+
+    renderGames();
+  </script>
 </body>
 </html>
-
