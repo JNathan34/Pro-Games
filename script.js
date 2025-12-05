@@ -1,5 +1,5 @@
 // === CONFIG ===
-const encryptedPassword = btoa("112233");   // change "112233" to your password
+const encryptedPassword = btoa("07481861478");   
 const maxAttempts = 5;
 const cooldownMinutes = 10;
 
@@ -96,3 +96,4 @@ loginBtn.addEventListener("click", function () {
         lockLogin();
     }
 });
+
