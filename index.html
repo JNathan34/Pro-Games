@@ -52,10 +52,11 @@
         return code.slice(-6);
     }
 
-    document.getElementById("verifyBtn").onclick = () => {
+    function verifyCode() {
         const code = document.getElementById("totpInput").value;
 
         if (code === generateTOTP()) {
+            localStorage.setItem("authenticated", "true");
             window.location.href = "home.html";
         } else {
             const error = document.getElementById("error");
@@ -63,7 +64,16 @@
             error.classList.add("shake");
             setTimeout(() => error.classList.remove("shake"), 300);
         }
-    };
+    }
+
+    document.getElementById("verifyBtn").onclick = verifyCode;
+
+    // Press Enter to submit
+    document.getElementById("totpInput").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            verifyCode();
+        }
+    });
 </script>
 
 </body>
