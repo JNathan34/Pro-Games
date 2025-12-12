@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <base href="https://cdn.jsdelivr.net/gh/CoolDude2349/everything@main/zombierush/">
+    <meta charset="UTF-8">
+    <title>Zombie Rush</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <meta name="robots" content="noindex">
+    <meta name="generator" content="Scirra Construct">
+    <meta name="author" content="Thomas COLLIN">
+    <meta name="description" content="Zombie Rush is a survival game">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* Timer box in top-right */
+        #sessionTimer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 255, 153, 0.85);
+            color: #000;
+            padding: 8px 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            z-index: 9999;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Session timer -->
+    <div id="sessionTimer">60:00</div>
+
+    <script>
+        // Check if the user is authenticated
+        const authExpires = localStorage.getItem("authExpires");
+        if (!localStorage.getItem("authenticated") || !authExpires || Date.now() > authExpires) {
+            alert("Session expired or not logged in.");
+            window.location.href = "index.html";
+        }
+
+        // Timer logic
+        const timerElement = document.getElementById("sessionTimer");
+        let remaining = Math.floor((authExpires - Date.now()) / 1000); // seconds remaining
+
+        function updateTimer() {
+            if (remaining <= 0) {
+                localStorage.removeItem("authenticated");
+                localStorage.removeItem("authExpires");
+                alert("Session expired!");
+                window.location.href = "index.html";
+                return;
+            }
+
+            const minutes = Math.floor(remaining / 60).toString().padStart(2, '0');
+            const seconds = (remaining % 60).toString().padStart(2, '0');
+            timerElement.textContent = `${minutes}:${seconds}`;
+            remaining--;
+        }
+
+        updateTimer();
+        setInterval(updateTimer, 1000);
+    </script>
+
+    <script>
+        if (location.protocol.substr(0, 4) === "file") {
+            alert("Web exports won't work until you upload them. (When running on the file: protocol, browsers block many features from working for security reasons.)");
+        }
+    </script>
+    <script src="GameAnalytics.js"></script>
+    <script src="sdk.js"></script>
+    <noscript>
+        <div id="notSupportedWrap">
+            <h2 id="notSupportedTitle">This content requires JavaScript</h2>
+            <p class="notSupportedMessage">JavaScript appears to be disabled. Please enable it to view this content.</p>
+        </div>
+    </noscript>
+    <script src="scripts/supportcheck.js"></script>
+    <script src="scripts/offlineclient.js" type="module"></script>
+    <script src="scripts/main-edit3.js" type="module"></script>
+    <script src="scripts/register-sw.js" type="module"></script>
+
+</body>
+
+</html>

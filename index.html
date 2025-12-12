@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProGames - Two Factor Auth</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0b0b0d;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            text-align: center;
+            background: #15151b;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0,255,153,0.3);
+        }
+        input {
+            padding: 12px;
+            font-size: 1.2rem;
+            width: 150px;
+            text-align: center;
+            border-radius: 8px;
+            border: 1px solid #00ff9d;
+            background: #0f0f13;
+            color: white;
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 15px;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background: #00ff9d;
+            color: #000;
+        }
+        button:hover {
+            background: #00d987;
+        }
+        #error {
+            color: red;
+            margin-top: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>ProGames</h1>
+    <h2>Two-Factor Authentication</h2>
+    <p>Enter the 6-digit code from your authenticator app</p>
+
+    <input id="totpInput" maxlength="6" placeholder="------">
+    <br>
+    <button id="verifyBtn">Verify Code</button>
+    <p id="error">Invalid code. Try again.</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jssha/dist/sha.js"></script>
+<script>
+    const secret = "JBSWY3DPEHPK3PXP"; // your TOTP secret
+
+    function base32ToHex(base32) {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+        let bits = "", hex = "";
+        for (let i = 0; i < base32.length; i++) {
+            const val = chars.indexOf(base32.charAt(i).toUpperCase());
+            bits += val.toString(2).padStart(5, "0");
+        }
+        for (let i = 0; i + 4 <= bits.length; i += 4)
+            hex += parseInt(bits.substring(i, i + 4), 2).toString(16);
+        return hex;
+    }
+
+    // UPDATED — allows ±30 seconds clock drift
+    function generateTOTP(offsetSeconds = 0) {
+        const key = base32ToHex(secret);
+        const epoch = Math.floor((Date.now() + offsetSeconds * 1000) / 1000);
+        const step = Math.floor(epoch / 30).toString(16).padStart(16, "0");
+
+        const sha = new jsSHA("SHA-1", "HEX");
+        sha.setHMACKey(key, "HEX");
+        sha.update(step);
+        const hmac = sha.getHMAC("HEX");
+
+        const offset = parseInt(hmac.slice(-1), 16);
+        const part = hmac.substr(offset * 2, 8);
+        const code = (parseInt(part, 16) & 0x7fffffff).toString();
+        return code.slice(-6);
+    }
+
+    function verifyCode() {
+        const userCode = document.getElementById("totpInput").value;
+
+        const current = generateTOTP(0);
+        const prev    = generateTOTP(-30);
+        const next    = generateTOTP(30);
+
+        if (userCode === current || userCode === prev || userCode === next) {
+            localStorage.setItem("authenticated", "true");
+            localStorage.setItem("authExpires", Date.now() + 60 * 60 * 1000);
+            window.location.href = "home.html";
+        } else {
+            document.getElementById("error").style.display = "block";
+        }
+    }
+
+    document.getElementById("verifyBtn").onclick = verifyCode;
+
+    document.getElementById("totpInput").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") verifyCode();
+    });
+</script>
+
+</body>
+</html>

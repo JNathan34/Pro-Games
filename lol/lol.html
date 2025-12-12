@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Ultimate Game Stash</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    /* Timer box in top-right */
+    #sessionTimer {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 255, 153, 0.85);
+      color: #000;
+      padding: 8px 12px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      z-index: 9999;
+      font-family: Arial, sans-serif;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Session timer -->
+  <div id="sessionTimer">60:00</div>
+
+  <script>
+    // Check if the user is authenticated
+    const authExpires = localStorage.getItem("authExpires");
+    if (!localStorage.getItem("authenticated") || !authExpires || Date.now() > authExpires) {
+      alert("Session expired or not logged in.");
+      window.location.href = "index.html";
+    }
+
+    // Timer logic
+    const timerElement = document.getElementById("sessionTimer");
+    let remaining = Math.floor((authExpires - Date.now()) / 1000); // seconds remaining
+
+    function updateTimer() {
+      if (remaining <= 0) {
+        localStorage.removeItem("authenticated");
+        localStorage.removeItem("authExpires");
+        alert("Session expired!");
+        window.location.href = "index.html";
+        return;
+      }
+
+      const minutes = Math.floor(remaining / 60).toString().padStart(2, '0');
+      const seconds = (remaining % 60).toString().padStart(2, '0');
+      timerElement.textContent = `${minutes}:${seconds}`;
+      remaining--;
+    }
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+  </script>
+
+  <!-- Unity WebGL game scripts -->
+  <script src="https://cdn.jsdelivr.net/gh/n-101-1/1@main/UnityProgress.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/n-101-1/1@main/2.7.js"></script>
+  <script type="text/javascript">
+    var gameInstance;
+    window.onload = function () {
+      gameInstance = UnityLoader.instantiate("gameContainer", "https://cdn.jsdelivr.net/gh/n-101-1/1@main/2.7.json", {
+        onProgress: UnityProgress,
+        Module: {
+          onRuntimeInitialized: function () {
+            UnityProgress(gameInstance, "complete");
+          },
+        },
+      });
+    };
+  </script>
+
+  <div class="webgl-content">
+    <div id="gameContainer" style="width: 100%; height: 100%; margin: 0; padding: 0; border: 0; position: relative; background: #000;">
+      <canvas id="#canvas" style="width: 100%; height: 100%; cursor: default;" width="1018" height="926"></canvas>
+      <div class="logo Dark" style="display: none;"></div>
+      <div class="progress Dark" style="display: none;">
+        <div class="empty" style="width: 0%;"></div>
+        <div class="full" style="width: 100%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase & game scripts -->
+  <script src="https://cdn.jsdelivr.net/gh/n-101-1/1@main/1firebase-app.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/n-101-1/1@main/1firebase-auth.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/n-101-1/1@main/1firebase-firestore.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/n-101-1/1@main/1firebase.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/n-101-1/1@main/1login.js?v=2"></script>
+  <script src="https://cdn.jsdelivr.net/gh/n-101-1/1@main/1firestore.js"></script>
+
+  <script>
+    initializeFireBase();
+
+    function showAds() {
+      console.log("show ads");
+    }
+
+    function requestNewAd() {
+      // Show video ad
+      unityAdFinishedCallback();
+    }
+
+    function unityAdFinishedCallback() {
+      try {
+        if (gameInstance) gameInstance.SendMessage("AdsManager", "OnWebCallback");
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  </script>
+
+</body>
+</html>

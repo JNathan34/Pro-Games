@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pro Games</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: Arial, sans-serif;
+        background: #0b0b0d;
+        color: white;
+        padding: 20px;
+    }
+
+    /* NEW LOGOUT BUTTON STYLE (matches timer) */
+    .logout-btn {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        padding: 8px 12px;
+        font-size: 16px;
+        font-weight: bold;
+        background: rgba(0, 255, 153, 0.85);
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        z-index: 9999;
+        font-family: Arial, sans-serif;
+    }
+
+    .logout-btn:hover { background: rgba(0, 255, 153, 1); }
+
+    /* NEW SESSION TIMER BOX */
+    #sessionTimer {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 255, 153, 0.85);
+      color: #000;
+      padding: 8px 12px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      z-index: 9999;
+      font-family: Arial, sans-serif;
+    }
+
+    .header { text-align: center; margin-bottom: 10px; }
+    .header h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #00ff9d;
+        text-shadow: 0 0 20px rgba(0,255,153,0.4);
+    }
+
+    .search-filter-bar {
+        width: 100%;
+        max-width: 900px;
+        margin: 20px auto;
+        display: flex;
+        gap: 15px;
+    }
+
+    .search-filter-bar input, .search-filter-bar select {
+        flex: 1;
+        padding: 12px 15px;
+        background: #0f0f13;
+        border: 1px solid #1f1f25;
+        border-radius: 10px;
+        color: white;
+        font-size: 1rem;
+    }
+
+    .search-filter-bar input:focus, .search-filter-bar select:focus {
+        border-color: #00ff9d;
+        box-shadow: 0 0 8px rgba(0,255,153,0.4);
+    }
+
+    .game-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 30px;
+        margin: 30px auto;
+        max-width: 1300px;
+    }
+
+    .game-card {
+        position: relative;
+        background: #15151b;
+        border-radius: 14px;
+        overflow: hidden;
+        padding-bottom: 140%;
+        cursor: pointer;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .game-card:hover {
+        transform: translateY(-5px) scale(1.03);
+        box-shadow: 0 10px 25px rgba(0,255,153,0.4);
+    }
+
+    .game-card img {
+        position: absolute; width: 100%; height: 100%; object-fit: cover;
+    }
+
+    .game-card .title {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        padding: 12px 10px;
+        background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0));
+        text-align: center;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: white;
+    }
+
+    .footer { margin-top: 40px; text-align: center; opacity: 0.8; }
+    .footer ul { list-style: none; padding: 0; }
+  </style>
+</head>
+<body>
+
+<!-- NEW LOGOUT BUTTON STYLE -->
+<button class="logout-btn" onclick="logout()">Logout</button>
+
+<!-- NEW SESSION TIMER BOX -->
+<div id="sessionTimer">Session: 60:00</div>
+
+<div class="header"><h1>Pro Games</h1></div>
+
+<div class="search-filter-bar">
+  <input type="text" id="searchInput" placeholder="Search games...">
+  <select id="genreFilter">
+    <option value="all">All Genres</option>
+    <option value="arcade">Arcade</option>
+    <option value="action">Action</option>
+    <option value="puzzle">Puzzle</option>
+    <option value="strategy">Strategy</option>
+  </select>
+</div>
+
+<div class="game-grid" id="gameGrid"></div>
+
+<div class="footer">
+  <h2>Recommended Browsers</h2>
+  <p>For best performance use:</p>
+  <ul>
+    <li>Microsoft Edge</li>
+    <li>Opera GX</li>
+    <li>Google Chrome</li>
+  </ul>
+</div>
+
+<script>
+const games = [
+    { title: "Crossy Road", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/crossyroad.png", url: "crossyroad/crossyroad.html", genre: "arcade" },
+    { title: "Minecraft", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/minecraft.png", url: "minecraft.html", genre: "action" },
+    { title: "Block Towers", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/block.png", url: "block/block.html", genre: "puzzle" },
+    { title: "Snake", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/snake.png", url: "snake/snake.html", genre: "arcade" },
+    { title: "Subway Surfers", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/subway.png", url: "subway/subway.html", genre: "arcade" },
+    { title: "Among Us", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/among.png", url: "among/among.html", genre: "strategy" },
+    { title: "Chess", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/chess.png", url: "chess/chess.html", genre: "strategy" },
+    { title: "FNAF", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/fnaf.png", url: "fnaf/fnaf.html", genre: "action" },
+    { title: "BitLife", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/bit.png", url: "bit/bit.html", genre: "strategy" },
+    { title: "Tomb of the Mask", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/tomb.png", url: "tomb/tomb.html", genre: "arcade" },
+    { title: "Slope", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/slope.png", url: "slope/slope.html", genre: "arcade" },
+    { title: "Grow a Garden", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/grow.png", url: "grow/grow.html", genre: "puzzle" },
+    { title: "Hill Climb Racing", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/hill.png", url: "hill/hill.html", genre: "arcade" },
+    { title: "1v1 LOL", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/lol.png", url: "lol/lol.html", genre: "action" },
+    { title: "Monkey Mart", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/monkey.png", url: "monkey/monkey.html", genre: "arcade" },
+    { title: "Temple Run", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/temple.png", url: "temple/temple.html", genre: "arcade" },
+    { title: "Zombie Road", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/zombie.png", url: "zombie/zombie.html", genre: "arcade" },
+    { title: "Zombie Rush", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/zombie2.png", url: "zombie2/zombie2.html", genre: "arcade" }
+];
+
+const grid = document.getElementById("gameGrid");
+
+function renderGames() {
+    const search = document.getElementById("searchInput").value.toLowerCase();
+    const filter = document.getElementById("genreFilter").value;
+    grid.innerHTML = "";
+
+    games
+      .filter(game => game.title.toLowerCase().includes(search))
+      .filter(game => filter === "all" || game.genre === filter)
+      .forEach(game => {
+          const card = document.createElement("a");
+          card.href = game.url;
+          card.className = "game-card";
+          card.innerHTML = `<img src="${game.img}" alt="${game.title}" /><div class="title">${game.title}</div>`;
+          grid.appendChild(card);
+      });
+}
+
+document.getElementById("searchInput").addEventListener("input", renderGames);
+document.getElementById("genreFilter").addEventListener("change", renderGames);
+renderGames();
+
+function logout() {
+    localStorage.removeItem("authenticated");
+    localStorage.removeItem("authExpires");
+    window.location.href = "index.html";
+}
+
+const countdownEl = document.getElementById("sessionTimer");
+
+function checkSession() {
+    const auth = localStorage.getItem("authenticated");
+    const expires = parseInt(localStorage.getItem("authExpires"),10);
+
+    if(!auth || !expires || Date.now() > expires) {
+        logout();
+        return;
+    }
+
+    const remaining = expires - Date.now();
+    const minutes = Math.floor(remaining / 1000 / 60);
+    const seconds = Math.floor((remaining / 1000) % 60);
+
+    countdownEl.textContent =
+        `Session: ${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+}
+
+setInterval(checkSession, 1000);
+checkSession();
+</script>
+
+</body>
+</html>
