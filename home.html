@@ -14,7 +14,6 @@
         padding: 20px;
     }
 
-    /* NEW LOGOUT BUTTON STYLE (matches timer) */
     .logout-btn {
         position: fixed;
         top: 20px;
@@ -28,12 +27,9 @@
         border-radius: 8px;
         cursor: pointer;
         z-index: 9999;
-        font-family: Arial, sans-serif;
     }
-
     .logout-btn:hover { background: rgba(0, 255, 153, 1); }
 
-    /* NEW SESSION TIMER BOX */
     #sessionTimer {
       position: fixed;
       top: 20px;
@@ -45,7 +41,85 @@
       font-weight: bold;
       border-radius: 8px;
       z-index: 9999;
-      font-family: Arial, sans-serif;
+    }
+
+    #extendBtn {
+      position: fixed;
+      top: 65px;
+      right: 20px;
+      padding: 8px 12px;
+      font-size: 16px;
+      font-weight: bold;
+      background: rgba(0, 255, 153, 0.85);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      z-index: 9999;
+    }
+
+    #extendPopup, #adminPopup {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(2px);
+      justify-content: center;
+      align-items: center;
+      z-index: 999999;
+    }
+
+    .popup-box {
+      background: #15151b;
+      padding: 30px;
+      width: 320px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,255,153,0.3);
+    }
+
+    .popup-box input {
+      margin-top: 15px;
+      padding: 12px;
+      width: 140px;
+      text-align: center;
+      border-radius: 8px;
+      border: 1px solid #00ff9d;
+      background: #0f0f13;
+      color: white;
+      font-size: 1.2rem;
+    }
+
+    .popup-box button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #00ff9d;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #extendError, #adminError {
+      color: red;
+      display: none;
+      margin-top: 10px;
+    }
+
+    #adminBtn {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      padding: 8px 14px;
+      background: rgba(255, 0, 0, 0.85);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      z-index: 9999;
     }
 
     .header { text-align: center; margin-bottom: 10px; }
@@ -72,11 +146,6 @@
         border-radius: 10px;
         color: white;
         font-size: 1rem;
-    }
-
-    .search-filter-bar input:focus, .search-filter-bar select:focus {
-        border-color: #00ff9d;
-        box-shadow: 0 0 8px rgba(0,255,153,0.4);
     }
 
     .game-grid {
@@ -120,15 +189,61 @@
 
     .footer { margin-top: 40px; text-align: center; opacity: 0.8; }
     .footer ul { list-style: none; padding: 0; }
+	
+	/* RED THEME FOR BOTH POPUP MENUS */
+#extendPopup .popup-box,
+#adminPopup .popup-box {
+    background: #250000 !important;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5) !important;
+}
+
+#extendPopup input,
+#adminPopup input {
+    border: 1px solid #ff4d4d !important;
+    background: #150000 !important;
+}
+
+#extendPopup button,
+#adminPopup button {
+    background: #ff1a1a !important;
+    color: #fff !important;
+}
+
+#extendError,
+#adminError {
+    color: #ff4d4d !important;
+}
+
   </style>
 </head>
 <body>
 
-<!-- NEW LOGOUT BUTTON STYLE -->
 <button class="logout-btn" onclick="logout()">Logout</button>
-
-<!-- NEW SESSION TIMER BOX -->
 <div id="sessionTimer">Session: 60:00</div>
+<button id="extendBtn">Add Time</button>
+<button id="adminBtn">Admin</button>
+
+<!-- Extend Popup -->
+<div id="extendPopup" class="popup-box">
+  <div class="popup-box">
+      <h2>Extend Session</h2>
+      <p>Enter your 6-digit 2FA code</p>
+      <input id="extendInput" maxlength="6" placeholder="------">
+      <button id="extendSubmit">Add +1 Hour</button>
+      <p id="extendError">Invalid code</p>
+  </div>
+</div>
+
+<!-- Admin Popup -->
+<div id="adminPopup" class="popup-box">
+  <div class="popup-box" id="adminBox">
+      <h2>Admin Access</h2>
+      <p>Enter your 6-digit admin code</p>
+      <input id="adminCodeInput" maxlength="6" placeholder="------">
+      <button id="adminCodeSubmit">Enter</button>
+      <p id="adminError">Invalid code</p>
+  </div>
+</div>
 
 <div class="header"><h1>Pro Games</h1></div>
 
@@ -155,64 +270,172 @@
   </ul>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/jssha/dist/sha.js"></script>
 <script>
+/* ---------------- TOTP ---------------- */
+const extendSecret = "JBSWY3DPEHPK3PXP";
+const adminSecret = "K7RWI3DFOZTGK5LX";
+
+function base32ToHex(base32){
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+    let bits="",hex="";
+    for(let i=0;i<base32.length;i++){bits+=chars.indexOf(base32[i].toUpperCase()).toString(2).padStart(5,"0");}
+    for(let i=0;i+4<=bits.length;i+=4){hex+=parseInt(bits.substring(i,i+4),2).toString(16);}
+    return hex;
+}
+
+function generateTOTP(secret, offsetSeconds=0){
+    const key = base32ToHex(secret);
+    const epoch = Math.floor((Date.now()+offsetSeconds*1000)/1000);
+    const step = Math.floor(epoch/30).toString(16).padStart(16,"0");
+    const sha = new jsSHA("SHA-1","HEX");
+    sha.setHMACKey(key,"HEX");
+    sha.update(step);
+    const hmac = sha.getHMAC("HEX");
+    const offset = parseInt(hmac.slice(-1),16);
+    const part = hmac.substr(offset*2,8);
+    return (parseInt(part,16) & 0x7fffffff).toString().slice(-6);
+}
+
+/* ---------------- GAMES ---------------- */
 const games = [
+    { title: "Crossy Road", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/crossyroad.png", url: "crossyroad/crossyroad.html", genre: "arcade" },
+    { title: "Minecraft", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/minecraft.png", url: "minecraft.html", genre: "action" },
+    { title: "Block Towers", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/block.png", url: "block/block.html", genre: "puzzle" },
+    { title: "Snake", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/snake.png", url: "snake/snake.html", genre: "arcade" },
+    { title: "Subway Surfers", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/subway.png", url: "subway/subway.html", genre: "arcade" },
+    { title: "Among Us", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/among.png", url: "among/among.html", genre: "strategy" },
+    { title: "Chess", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/chess.png", url: "chess/chess.html", genre: "strategy" },
+    { title: "FNAF", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/fnaf.png", url: "fnaf/fnaf.html", genre: "action" },
+    { title: "BitLife", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/bit.png", url: "bit/bit.html", genre: "strategy" },
+    { title: "Tomb of the Mask", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/tomb.png", url: "tomb/tomb.html", genre: "arcade" },
     { title: "Slope", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/slope.png", url: "slope/slope.html", genre: "arcade" },
+    { title: "Grow a Garden", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/grow.png", url: "grow/grow.html", genre: "puzzle" },
+    { title: "Hill Climb Racing", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/hill.png", url: "hill/hill.html", genre: "arcade" },
     { title: "1v1 LOL", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/lol.png", url: "lol/lol.html", genre: "action" },
     { title: "Monkey Mart", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/monkey.png", url: "monkey/monkey.html", genre: "arcade" },
-    { title: "Zombie Rush", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/zombie2.png", url: "zombie2/zombie2.html", genre: "arcade" }
+    { title: "Temple Run", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/temple.png", url: "temple/temple.html", genre: "arcade" },
+    { title: "Zombie Road", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/zombie.png", url: "zombie/zombie.html", genre: "arcade" },
+    { title: "Zombie Rush", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/zombie2.png", url: "zombie2/zombie2.html", genre: "arcade" },
+    { title: "99 Nights in the Forest", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/99.png", url: "99/99.html", genre: "adventure" },
+    { title: "Escape Road", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/escape.png", url: "escape/escape.html", genre: "puzzle" },
+    { title: "Drive Mad", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/drive.png", url: "drive/drive.html", genre: "arcade" },
+    { title: "8 Ball Pool", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/8.png", url: "8/8.html", genre: "sports" }
 ];
 
 const grid = document.getElementById("gameGrid");
-
-function renderGames() {
+function renderGames(){
     const search = document.getElementById("searchInput").value.toLowerCase();
     const filter = document.getElementById("genreFilter").value;
-    grid.innerHTML = "";
-
-    games
-      .filter(game => game.title.toLowerCase().includes(search))
-      .filter(game => filter === "all" || game.genre === filter)
-      .forEach(game => {
-          const card = document.createElement("a");
-          card.href = game.url;
-          card.className = "game-card";
-          card.innerHTML = `<img src="${game.img}" alt="${game.title}" /><div class="title">${game.title}</div>`;
-          grid.appendChild(card);
-      });
+    grid.innerHTML="";
+    games.filter(g=>g.title.toLowerCase().includes(search))
+         .filter(g=>filter==="all"||g.genre===filter)
+         .forEach(g=>{
+            const card=document.createElement("a");
+            card.href=g.url;
+            card.className="game-card";
+            card.innerHTML=`<img src="${g.img}"><div class="title">${g.title}</div>`;
+            grid.appendChild(card);
+         });
 }
-
-document.getElementById("searchInput").addEventListener("input", renderGames);
-document.getElementById("genreFilter").addEventListener("change", renderGames);
+document.getElementById("searchInput").addEventListener("input",renderGames);
+document.getElementById("genreFilter").addEventListener("change",renderGames);
 renderGames();
 
-function logout() {
+/* ---------------- LOGOUT ---------------- */
+function logout(){
     localStorage.removeItem("authenticated");
     localStorage.removeItem("authExpires");
-    window.location.href = "index.html";
+    window.location.href="index.html";
 }
 
+/* ---------------- TIMER ---------------- */
 const countdownEl = document.getElementById("sessionTimer");
-
-function checkSession() {
+function checkSession(){
     const auth = localStorage.getItem("authenticated");
     const expires = parseInt(localStorage.getItem("authExpires"),10);
-
-    if(!auth || !expires || Date.now() > expires) {
-        logout();
-        return;
-    }
-
+    if(!auth||!expires||Date.now()>expires){logout();return;}
     const remaining = expires - Date.now();
-    const minutes = Math.floor(remaining / 1000 / 60);
-    const seconds = Math.floor((remaining / 1000) % 60);
-
-    countdownEl.textContent =
-        `Session: ${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+    const minutes=Math.floor(remaining/1000/60);
+    const seconds=Math.floor((remaining/1000)%60);
+    countdownEl.textContent=`Session: ${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
 }
-
-setInterval(checkSession, 1000);
+setInterval(checkSession,1000);
 checkSession();
+
+/* ---------------- EXTEND TIME ---------------- */
+const extendPopup=document.getElementById("extendPopup");
+const extendInput=document.getElementById("extendInput");
+const extendSubmit=document.getElementById("extendSubmit");
+const extendError=document.getElementById("extendError");
+
+document.getElementById("extendBtn").onclick=()=>{extendPopup.style.display="flex";extendInput.value="";extendError.style.display="none";};
+extendPopup.onclick=e=>{if(e.target===e.currentTarget)extendPopup.style.display="none";};
+extendSubmit.onclick=()=>{
+    const code=extendInput.value;
+    const current=generateTOTP(extendSecret,0);
+    const prev=generateTOTP(extendSecret,-30);
+    const next=generateTOTP(extendSecret,30);
+    if(code!==current&&code!==prev&&code!==next){extendError.style.display="block";return;}
+    let expiry=parseInt(localStorage.getItem("authExpires")||"0",10);
+    const now=Date.now();
+    expiry=expiry>now?expiry+3600000:now+3600000;
+    localStorage.setItem("authExpires",expiry);
+    extendPopup.style.display="none";
+};
+
+/* ---------------- ADMIN ---------------- */
+const adminPopup=document.getElementById("adminPopup");
+const adminCodeInput=document.getElementById("adminCodeInput");
+const adminCodeSubmit=document.getElementById("adminCodeSubmit");
+const adminError=document.getElementById("adminError");
+const adminBox=document.getElementById("adminBox");
+
+document.getElementById("adminBtn").onclick=()=>{adminPopup.style.display="flex";adminCodeInput.value="";adminError.style.display="none";};
+adminPopup.onclick=e=>{if(e.target===e.currentTarget)adminPopup.style.display="none";};
+adminCodeSubmit.onclick=()=>{
+    const code=adminCodeInput.value;
+    const current=generateTOTP(adminSecret,0);
+    const prev=generateTOTP(adminSecret,-30);
+    const next=generateTOTP(adminSecret,30);
+    if(code!==current&&code!==prev&&code!==next){adminError.style.display="block";return;}
+    adminBox.innerHTML=`
+        <h2 class="logoText">Admin Menu</h2>
+        <button onclick="adminAddMinute()">Add +1 Minute</button>
+        <button onclick="adminAddHour()">Add +1 Hour</button>
+        <button onclick="adminSetMidnight()">Set to Midnight</button>
+        <button onclick="adminDouble()">Double Session</button>
+        <button onclick="adminHalf()">Half Session</button>
+        <button onclick="adminReset()">Reset to 60 Minutes</button>
+        <button onclick="adminExpire()">Expire Now</button>
+        <button onclick="adminPopup.style.display='none'">Close</button>
+    `;
+};
+
+/* ADMIN FUNCTIONS */
+function adminAddMinute(){modifyExpiry(60000);}
+function adminAddHour(){modifyExpiry(3600000);}
+function adminReset(){localStorage.setItem("authExpires",Date.now()+3600000);}
+function adminExpire(){localStorage.setItem("authExpires",Date.now()-1000);}
+function adminDouble(){let e=parseInt(localStorage.getItem("authExpires")||"0",10);let now=Date.now();if(e<now)e=now+3600000;localStorage.setItem("authExpires",e+e-now);}
+function adminHalf(){let e=parseInt(localStorage.getItem("authExpires")||"0",10);let now=Date.now();if(e<now)e=now+3600000;localStorage.setItem("authExpires",Math.max(now,e-(e-now)/2));}
+function adminSetMidnight(){let now=new Date();let midnight=new Date();midnight.setHours(24,0,0,0);let diff=midnight-now;localStorage.setItem("authExpires",Date.now()+diff);}
+function modifyExpiry(ms){let e=parseInt(localStorage.getItem("authExpires")||"0",10);let now=Date.now();if(e<now)e=now+3600000;localStorage.setItem("authExpires",e+ms);}
+function modifyExpiry(ms){let e=parseInt(localStorage.getItem("authExpires")||"0",10);let now=Date.now();if(e<now)e=now+3600000;localStorage.setItem("authExpires",e+ms);}
+
+/* ENTER TO SUBMIT — EXTEND POPUP */
+extendInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+        extendSubmit.click();
+    }
+});
+
+/* ENTER TO SUBMIT — ADMIN POPUP */
+adminCodeInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+        adminCodeSubmit.click();
+    }
+});
 </script>
 
 </body>

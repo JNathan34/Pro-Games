@@ -10,37 +10,23 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, minimal-ui, shrink-to-fit=no">
 	<meta name="mobile-web-app-capable" content="yes">
 	<script src="https://cdn.jsdelivr.net/gh/bubbls/youtube-playables@main/ytgame.js" nonce="TPIafyWGMIB2_8Gk5HFfiA"></script>
-	<!-- <script src="dmloader.js"></script> -->
-	<!-- The above 4 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-   
-       <!-- Store values in a hidden div or data attributes -->
-	   <div id="engine-config"
-	   data-engine-arguments="--verify-graphics-calls=false,"
-	   data-custom-heap-size= "33554432"
-	   data-exe-name= "HCRLite"
-	   data-display-width= "470"
-	   data-display-height= "836"></div>
-	   <!-- <div id="engine-config"
-	   data-engine-arguments="test"
-	   data-custom-heap-size= 128 
-	   data-exe-name= "HCRLite"
-	   data-display-width= 470 
-	   data-display-height= 836 ></div> -->
 
-	<!--<script src="dmloader.js"></script>-->
+	<!-- Store values in a hidden div or data attributes -->
+	<div id="engine-config"
+	   data-engine-arguments="--verify-graphics-calls=false,"
+	   data-custom-heap-size="33554432"
+	   data-exe-name="HCRLite"
+	   data-display-width="470"
+	   data-display-height="836"></div>
+
 	<script src="loader.js" nonce="TPIafyWGMIB2_8Gk5HFfiA"></script>
 	<script src="yt-functions.js" nonce="TPIafyWGMIB2_8Gk5HFfiA"></script>
- 
+
 	<title>HCR Lite 1.0</title>
+
 	<style type='text/css'>
-	/* Disable user selection to avoid strange bug in Chrome on Windows:
-	* Selecting a text outside the canvas, then clicking+draging would
-	* drag the selected text but block mouse down/up events to the engine.
-	*/
 	body {
-	
-		position: fixed; /* Prevent overscroll */
-	
+		position: fixed;
 		margin:0;
 		padding:0;
 	}
@@ -55,7 +41,6 @@
 	}
 
 	.canvas-app-container:-webkit-full-screen {
-		/* Auto width and height in Safari/Chrome fullscreen. */
 		width: auto;
 		height: auto;
 	}
@@ -87,14 +72,73 @@
 		-ms-user-select: none;
 		user-select: none;
 	}
+
+	/* TIMER CSS */
+	#sessionTimer {
+	  position: fixed;
+	  top: 20px;
+	  right: 20px;
+	  background: rgba(0, 255, 153, 0.85);
+	  color: #000;
+	  padding: 8px 12px;
+	  font-size: 16px;
+	  font-weight: bold;
+	  border-radius: 8px;
+	  z-index: 999999;
+	  font-family: Arial, sans-serif;
+	}
 	</style>
 </head>
 
 <body>
+
+	<!-- TIMER DISPLAY -->
+	<div id="sessionTimer">Session: 60:00</div>
+
 	<div id="app-container" class="canvas-app-container">
 		<div id="canvas-container" class="canvas-app-canvas-container">
 			<canvas id="canvas" class="canvas-app-canvas" tabindex="1" width="470" height="836"></canvas>
 		</div>
 	</div>
+
+	<!-- TIMER SCRIPT -->
+	<script>
+	const countdownEl = document.getElementById("sessionTimer");
+
+	function logout() {
+		localStorage.removeItem("authenticated");
+		localStorage.removeItem("authExpires");
+		window.location.href = "index.html";
+	}
+
+	function updateTimer() {
+		const expires = parseInt(localStorage.getItem("authExpires"), 10);
+		const auth = localStorage.getItem("authenticated");
+
+		if (!auth || !expires) {
+			logout();
+			return;
+		}
+
+		const now = Date.now();
+
+		if (now > expires) {
+			logout();
+			return;
+		}
+
+		const remaining = expires - now;
+		const minutes = Math.floor(remaining / 1000 / 60);
+		const seconds = Math.floor((remaining / 1000) % 60);
+
+		countdownEl.textContent =
+			`Session: ${minutes.toString().padStart(2,'0')}:` +
+			`${seconds.toString().padStart(2,'0')}`;
+	}
+
+	setInterval(updateTimer, 1000);
+	updateTimer();
+	</script>
+
 </body>
 </html>

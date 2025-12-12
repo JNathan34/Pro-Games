@@ -1,11 +1,43 @@
-<Module>
-
+<!DOCTYPE html>
+<html>
 
 <!-- Ultimate Game Stash file--> 
 <!-- For the regularly updating doc go to https://docs.google.com/document/d/1_FmH3BlSBQI7FGgAQL59-ZPe8eCxs35wel6JUyVaG8Q/ -->
 
+<head>
 
-</style><script src=""></script><style>.gs-global-loader{position:fixed;z-index:99999;top:8px;right:8px;width:48px;height:48px}@media only screen and (min-width: 1024px){.gs-global-loader{top:inherit;right:16px;bottom:16px}}.gs-loader{position:relative;width:40px;height:40px;border-radius:50%;display:flex}.gs-loader__outter{box-sizing:border-box;position:absolute;border:4px solid #f50057;border-left-color:transparent;width:100%;height:100%;border-radius:50%;-webkit-animation:loader-outter 1s cubic-bezier(0.42, 0.61, 0.58, 0.41) infinite;animation:loader-outter 1s cubic-bezier(0.42, 0.61, 0.58, 0.41) infinite}.gs-loader__inner{box-sizing:border-box;position:absolute;border:4px solid #f50057;border-radius:50%;width:20px;height:20px;left:calc(50% - 10px);top:calc(50% - 10px);border-top-color:transparent;-webkit-animation:loader-inner 1s cubic-bezier(0.42, 0.61, 0.58, 0.41) infinite;animation:loader-inner 1s cubic-bezier(0.42, 0.61, 0.58, 0.41) infinite}@keyframes loader-outter{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes loader-inner{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(-360deg);transform:rotate(-360deg)}}.gs-loader-hidden{display:none}</style></head><body class="light" dir="ltr"><script>
+</style>
+
+<!-- TIMER CSS ADDED -->
+<style>
+#sessionTimer {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 255, 153, 0.85);
+  color: #000;
+  padding: 8px 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  z-index: 999999;
+  font-family: Arial, sans-serif;
+}
+</style>
+
+
+<script src=""></script>
+<style>
+.gs-global-loader{position:fixed;z-index:99999;top:8px;right:8px;width:48px;height:48px}@media only screen and (min-width: 1024px){.gs-global-loader{top:inherit;right:16px;bottom:16px}}.gs-loader{position:relative;width:40px;height:40px;border-radius:50%;display:flex}.gs-loader__outter{box-sizing:border-box;position:absolute;border:4px solid #f50057;border-left-color:transparent;width:100%;height:100%;border-radius:50%;-webkit-animation:loader-outter 1s cubic-bezier(0.42, 0.61, 0.58, 0.41) infinite;animation:loader-outter 1s cubic-bezier(0.42, 0.61, 0.58, 0.41) infinite}.gs-loader__inner{box-sizing:border-box;position:absolute;border:4px solid #f50057;border-radius:50%;width:20px;height:20px;left:calc(50% - 10px);top:calc(50% - 10px);border-top-color:transparent;-webkit-animation:loader-inner 1s cubic-bezier(0.42, 0.61, 0.58, 0.41) infinite;animation:loader-inner 1s cubic-bezier(0.42, 0.61, 0.58, 0.41) infinite}@keyframes loader-outter{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}100%{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}@keyframes loader-inner{0%{-webkit-transform:rotate(0deg);transform:rotate(-360deg)}}.gs-loader-hidden{display:none}
+</style>
+
+</head>
+<body class="light" dir="ltr">
+
+<!-- TIMER HTML ADDED -->
+<div id="sessionTimer">Session: 60:00</div>
+
+<script>
     const overlayBackgroundColor = "url('https://cdn.jsdelivr.net/gh/dem-google-usa/userconetn@main/background.gif')";
     const progressBarFillColor = "#FFFFFF";
     const progressBarBackgroundColor = "";
@@ -65,17 +97,14 @@
     const unityLoader = document.createElement("script");
     unityLoader.src = loaderUrl;
     unityLoader.onload = async () => {
-      //await _gpAwaiter.ready;
       createUnityInstance(canvas, config, (progress) => {
         spinner.style.display = "none";
         progressBarEmpty.style.display = "";
         progressBarFull.style.width = `${100 * progress}%`;
       }).then((unityInstance) => {
         window.unityInstance = unityInstance;
-        //_unityAwaiter.done(unityInstance);
         loadingCover.style.display = "none";
       }).catch((message) => {
-        //_unityAwaiter.abort(message);
         alert(message);
       });
     };
@@ -87,31 +116,59 @@
       canvas.focus();
     });
 
-  </script><script src="https://cdn.jsdelivr.net/gh/dem-google-usa/userconetn@main/Build/9853637125e801e9aae48e78dbbdcfca.loader.js"></script>
+  </script>
+<script src="https://cdn.jsdelivr.net/gh/dem-google-usa/userconetn@main/Build/9853637125e801e9aae48e78dbbdcfca.loader.js"></script>
 
-
-
-
-</script><script src="blob:"></script><div class="gs-global-loader" style="display: none;"><div class="gs-loader false">
+</script>
+<script src="blob:"></script>
+<div class="gs-global-loader" style="display: none;">
+  <div class="gs-loader false">
         <div class="gs-loader__outter"></div>
         <div class="gs-loader__inner"></div>
-    </div></div><input type="file" id="gp-file-input" tabindex="-1" style="position: fixed; top: -999px; left: -999px; z-index: 0;"><input type="file" id="gp-file-input" tabindex="-1" style="position: fixed; top: -999px; left: -999px; z-index: 0;"></body></html>
-</script><link href="https://cdn.jsdelivr.net/gh/dem-google-usa/userconetn@main/TemplateData/style.css" rel="stylesheet">
-<meta charset="utf-8">
-<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-<meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport">
-<title>Zombie Road</title>
+  </div>
+</div>
 
+<input type="file" id="gp-file-input" tabindex="-1" style="position: fixed; top: -999px; left: -999px; z-index: 0;">
+<input type="file" id="gp-file-input" tabindex="-1" style="position: fixed; top: -999px; left: -999px; z-index: 0;">
+</body>
 
-
+<!-- TIMER SCRIPT ADDED -->
 <script>
-/* mp-start */
+const countdownEl = document.getElementById("sessionTimer");
 
-var _params = gadgets.util.getUrlParameters();
-if (_params['exp_rpc_js'] != 1) {
-  var url = _params['parent'] + '/ig/ifpc_relay';
-  gadgets.rpc.setRelayUrl('..', url, true);
+function logout() {
+    localStorage.removeItem("authenticated");
+    localStorage.removeItem("authExpires");
+    window.location.href = "index.html";
 }
-/* mp-end */
-</script><style type="text/css" id="operaUserStyle">
 
+function updateTimer() {
+    const expires = parseInt(localStorage.getItem("authExpires"), 10);
+    const auth = localStorage.getItem("authenticated");
+
+    if (!auth || !expires) {
+        logout();
+        return;
+    }
+
+    const now = Date.now();
+
+    if (now > expires) {
+        logout();
+        return;
+    }
+
+    const remaining = expires - now;
+    const minutes = Math.floor(remaining / 1000 / 60);
+    const seconds = Math.floor((remaining / 1000) % 60);
+
+    countdownEl.textContent =
+        `Session: ${minutes.toString().padStart(2,'0')}:` +
+        `${seconds.toString().padStart(2,'0')}`;
+}
+
+setInterval(updateTimer, 1000);
+updateTimer();
+</script>
+
+</html>

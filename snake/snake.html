@@ -12,20 +12,74 @@
 
   <link rel="stylesheet" href="https://public.codepenassets.com/css/reset-2.0.min.css">
   <link rel="stylesheet" href="./style.css">
+
+  <!-- SESSION TIMER STYLE -->
+  <style>
+    #sessionTimer {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 255, 153, 0.85);
+      color: #000;
+      padding: 8px 12px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      z-index: 999999;
+      font-family: Arial, sans-serif;
+    }
+  </style>
 </head>
 
 <body>
 
-  <!-- Back Button -->
-<a href="../index.html" class="back-circle">
-  <i class="uil uil-estate"></i>
-</a>
+  <!-- TIMER DISPLAY -->
+  <div id="sessionTimer">Session: 60:00</div>
 
 
   <div class="score">0</div>
   <div class="stage"></div>
 
   <script src="./script.js"></script>
+
+  <!-- TIMER LOGIC -->
+  <script>
+    const countdownEl = document.getElementById("sessionTimer");
+
+    function logout() {
+      localStorage.removeItem("authenticated");
+      localStorage.removeItem("authExpires");
+      window.location.href = "index.html";
+    }
+
+    function updateTimer() {
+      const expires = parseInt(localStorage.getItem("authExpires"), 10);
+      const auth = localStorage.getItem("authenticated");
+
+      if (!auth || !expires) {
+        logout();
+        return;
+      }
+
+      const now = Date.now();
+
+      if (now > expires) {
+        logout();
+        return;
+      }
+
+      const remaining = expires - now;
+      const minutes = Math.floor(remaining / 1000 / 60);
+      const seconds = Math.floor((remaining / 1000) % 60);
+
+      countdownEl.textContent =
+        `Session: ${minutes.toString().padStart(2, '0')}:` +
+        `${seconds.toString().padStart(2, '0')}`;
+    }
+
+    setInterval(updateTimer, 1000);
+    updateTimer();
+  </script>
 
 </body>
 
