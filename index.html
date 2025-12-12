@@ -56,7 +56,9 @@
         const code = document.getElementById("totpInput").value;
 
         if (code === generateTOTP()) {
+            // Set authentication and session expiration (5 minutes)
             localStorage.setItem("authenticated", "true");
+            localStorage.setItem("authExpires", Date.now() + 5 * 60 * 1000);
             window.location.href = "home.html";
         } else {
             const error = document.getElementById("error");
