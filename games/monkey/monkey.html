@@ -197,5 +197,101 @@
 
 	<script type="text/javascript" src="GameAnalytics.js"></script>
 
+	<!-- CLOUD SAVE INTEGRATION -->
+	<script src="https://apis.google.com/js/api.js"></script>
+	<div id="save-indicator" style="position: fixed; top: 20px; right: 20px; background: rgba(0, 0, 0, 0.8); color: #fff; padding: 8px 16px; border-radius: 20px; font-family: 'Segoe UI', sans-serif; font-size: 14px; font-weight: 500; display: none; z-index: 9999; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(5px); box-shadow: 0 4px 6px rgba(0,0,0,0.1);">☁️ Syncing...</div>
+	
+	<script>
+	  const CLIENT_ID = '448742201910-98bfqv6ugof15tgdk09mjap1kmgt89lt.apps.googleusercontent.com';
+	  
+	  // Initialize Google API
+	  gapi.load('client', async () => {
+		  await gapi.client.init({
+			  discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+		  });
+		  
+		  // Check for token from home.html
+		  const token = localStorage.getItem('google_access_token');
+		  const expiry = localStorage.getItem('token_expiry');
+		  
+		  if (token && expiry && Date.now() < parseInt(expiry)) {
+			  gapi.client.setToken({access_token: token});
+			  console.log("Game: Cloud Auth Active");
+			  // Start auto-save loop (every 60 seconds)
+			  setInterval(saveToCloud, 60000);
+			  // Save on exit
+			  window.addEventListener('beforeunload', saveToCloud);
+		  }
+	  });
+  
+	  async function saveToCloud() {
+		  const ind = document.getElementById('save-indicator');
+		  try {
+			  ind.innerText = "☁️ Syncing...";
+			  ind.style.display = 'block';
+			  ind.style.color = '#fff';
+  
+			  // 1. Prepare Data
+			  const data = {};
+			  for (let i = 0; i < localStorage.length; i++) {
+				  const key = localStorage.key(i);
+				  // Filter out auth tokens to avoid bloating save file
+				  if(key !== 'google_access_token' && key !== 'user_credential' && key !== 'token_expiry') {
+					  data[key] = localStorage.getItem(key);
+				  }
+			  }
+			  const fileContent = JSON.stringify(data);
+			  const fileMetadata = {
+				  'name': 'pro_games_save.json',
+				  'mimeType': 'application/json',
+				  'parents': ['appDataFolder']
+			  };
+  
+			  // 2. Check if file exists
+			  const response = await gapi.client.drive.files.list({
+				  spaces: 'appDataFolder',
+				  q: "name = 'pro_games_save.json'",
+				  fields: 'files(id)'
+			  });
+  
+			  const files = response.result.files;
+  
+			  if (files && files.length > 0) {
+				  // Update existing file
+				  const fileId = files[0].id;
+				  await gapi.client.request({
+					  path: '/upload/drive/v3/files/' + fileId,
+					  method: 'PATCH',
+					  params: { uploadType: 'media' },
+					  body: fileContent
+				  });
+			  } else {
+				  // Create new file
+				  const form = new FormData();
+				  form.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
+				  form.append('file', new Blob([fileContent], { type: 'application/json' }));
+  
+				  await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+					  method: 'POST',
+					  headers: new Headers({ 'Authorization': 'Bearer ' + gapi.client.getToken().access_token }),
+					  body: form
+				  });
+			  }
+  
+			  // Show indicator
+			  ind.innerText = "☁️ Saved";
+			  ind.style.color = '#4caf50';
+			  setTimeout(() => ind.style.display = 'none', 2000);
+			  console.log("Game saved to cloud.");
+  
+		  } catch (e) {
+			  console.error("Cloud Save Error:", e);
+			  ind.innerText = "⚠️ Sync Failed";
+			  ind.style.color = '#ff5252';
+			  setTimeout(() => ind.style.display = 'none', 3000);
+		  }
+	  }
+	</script>
+
 </body>
 </html>
