@@ -246,7 +246,13 @@
       const ind = document.getElementById('save-indicator');
       ind.innerText = "☁️ Saving...";
       await saveToCloud();
-      window.location.href = '../../home.html';
+      
+      // Navigate back to home.html ignoring <base> tag
+      let path = window.location.href;
+      path = path.substring(0, path.lastIndexOf('/')); // remove filename
+      path = path.substring(0, path.lastIndexOf('/')); // remove game folder
+      path = path.substring(0, path.lastIndexOf('/')); // remove games folder
+      window.location.href = path + '/home.html';
   }
 </script>
 
