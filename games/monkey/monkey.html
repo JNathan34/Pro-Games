@@ -70,6 +70,7 @@
 		}
 	</style>
 
+	<script src="patch/js/poki-sdk.js"></script>
 </head>
 
 <body>
@@ -194,10 +195,11 @@
 		EngineLoader.load("canvas", "MonkeyMart");
 	</script>
 
+	<script type="text/javascript" src="GameAnalytics.js"></script>
+
 	<!-- CLOUD SAVE INTEGRATION -->
 	<script src="https://apis.google.com/js/api.js"></script>
 	<div id="save-indicator" style="position: fixed; top: 20px; right: 20px; background: rgba(0, 0, 0, 0.8); color: #fff; padding: 8px 16px; border-radius: 20px; font-family: 'Segoe UI', sans-serif; font-size: 14px; font-weight: 500; display: none; z-index: 9999; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(5px); box-shadow: 0 4px 6px rgba(0,0,0,0.1);">☁️ Syncing...</div>
-	<div id="save-indicator" style="position: fixed; top: 20px; right: 20px; background: rgba(0, 0, 0, 0.8); color: #fff; padding: 8px 16px; border-radius: 20px; font-family: 'Segoe UI', sans-serif; font-size: 14px; font-weight: 500; display: none; z-index: 2147483647; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(5px); box-shadow: 0 4px 6px rgba(0,0,0,0.1);">☁️ Syncing...</div>
 	
 	<script>
 	  const CLIENT_ID = '448742201910-98bfqv6ugof15tgdk09mjap1kmgt89lt.apps.googleusercontent.com';
@@ -215,17 +217,10 @@
 		  if (token && expiry && Date.now() < parseInt(expiry)) {
 			  gapi.client.setToken({access_token: token});
 			  console.log("Game: Cloud Auth Active");
-			  
-			  const ind = document.getElementById('save-indicator');
-			  ind.style.display = 'block';
-			  ind.innerText = "☁️ Cloud Active";
-
 			  // Start auto-save loop (every 60 seconds)
 			  setInterval(saveToCloud, 60000);
 			  // Save on exit
 			  window.addEventListener('beforeunload', saveToCloud);
-		  } else {
-			  console.log("Game: Cloud Auth Inactive (No token or expired)");
 		  }
 	  });
   
@@ -286,20 +281,14 @@
 			  // Show indicator
 			  ind.innerText = "☁️ Saved";
 			  ind.style.color = '#4caf50';
-			  setTimeout(() => {
-				  ind.innerText = "☁️ Cloud Active";
-				  ind.style.color = '#fff';
-			  }, 3000);
+			  setTimeout(() => ind.style.display = 'none', 2000);
 			  console.log("Game saved to cloud.");
   
 		  } catch (e) {
 			  console.error("Cloud Save Error:", e);
 			  ind.innerText = "⚠️ Sync Failed";
 			  ind.style.color = '#ff5252';
-			  setTimeout(() => {
-				  ind.innerText = "☁️ Cloud Active";
-				  ind.style.color = '#fff';
-			  }, 3000);
+			  setTimeout(() => ind.style.display = 'none', 3000);
 		  }
 	  }
 	</script>
