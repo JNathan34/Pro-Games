@@ -186,7 +186,7 @@
         <div style="display: flex; align-items: center; gap: 1rem;">
             <button id="sync-btn" class="btn-nav" style="display: none;" onclick="enableCloudSave()">☁️ Connect Cloud</button>
             <div id="user-profile" style="display: flex; align-items: center; gap: 0.5rem;" onclick="openProfileModal()"></div>
-            <a href="index.html" class="btn-nav" onclick="localStorage.removeItem('user_credential')">Sign Out</a>
+            <a href="index.html" class="btn-nav" onclick="localStorage.removeItem('user_credential'); localStorage.removeItem('google_access_token'); localStorage.removeItem('token_expiry');">Sign Out</a>
         </div>
     </nav>
 
@@ -250,6 +250,7 @@
                 await gapi.client.init({
                     discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
                 });
+                restoreSession();
             });
         }
 
@@ -261,6 +262,10 @@
                     if (resp.error !== undefined) {
                         throw (resp);
                     }
+                    const expiry = Date.now() + (resp.expires_in * 1000);
+                    localStorage.setItem('google_access_token', resp.access_token);
+                    localStorage.setItem('token_expiry', expiry);
+
                     syncBtn.innerText = "☁️ Synced";
                     syncBtn.style.backgroundColor = "#2e7d32";
                     console.log("Cloud Save Enabled. Access Token acquired.");
@@ -269,9 +274,59 @@
             });
         }
 
+        function restoreSession() {
+            const token = localStorage.getItem('google_access_token');
+            const expiry = localStorage.getItem('token_expiry');
+            if (token && expiry && Date.now() < parseInt(expiry)) {
+                gapi.client.setToken({access_token: token});
+                syncBtn.innerText = "☁️ Synced";
+                syncBtn.style.backgroundColor = "#2e7d32";
+                loadCloudSave(); // Load data when session is restored
+            }
+        }
+
         function enableCloudSave() {
             if (tokenClient) {
                 tokenClient.requestAccessToken({prompt: 'consent'});
+            }
+        }
+
+        async function loadCloudSave() {
+            try {
+                console.log("Checking for cloud saves...");
+                const response = await gapi.client.drive.files.list({
+                    spaces: 'appDataFolder',
+                    q: "name = 'pro_games_save.json'",
+                    fields: 'files(id, modifiedTime)'
+                });
+                
+                const files = response.result.files;
+                if (files && files.length > 0) {
+                    const fileId = files[0].id;
+                    const fileContent = await gapi.client.drive.files.get({
+                        fileId: fileId,
+                        alt: 'media'
+                    });
+                    const data = fileContent.result;
+                    const saveData = (typeof data === 'string') ? JSON.parse(data) : data;
+                    
+                    for (const key in saveData) {
+                        localStorage.setItem(key, saveData[key]);
+                    }
+                    console.log('Cloud save loaded successfully.');
+                    
+                    // Visual feedback
+                    const syncBtn = document.getElementById('sync-btn');
+                    if(syncBtn) {
+                        const originalText = syncBtn.innerText;
+                        syncBtn.innerText = "☁️ Data Loaded";
+                        setTimeout(() => syncBtn.innerText = originalText, 3000);
+                    }
+                } else {
+                    console.log('No cloud save found.');
+                }
+            } catch (err) {
+                console.error('Error loading cloud save:', err);
             }
         }
 
