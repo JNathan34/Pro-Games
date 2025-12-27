@@ -494,10 +494,21 @@ if (credential) {
         `;
         syncBtn.style.display = 'block';
     } catch (e) {
-        profileDiv.innerHTML = '<span>Guest User</span>';
+        renderGuestProfile();
     }
 } else {
-    profileDiv.innerHTML = '<span>Guest User</span>';
+    renderGuestProfile();
+}
+
+function renderGuestProfile() {
+    const gName = localStorage.getItem('guest_name');
+    const gAvatar = localStorage.getItem('guest_avatar');
+    if (gName) {
+        const imgTag = gAvatar ? `<img src="${gAvatar}" alt="Profile" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">` : '';
+        profileDiv.innerHTML = `<span>${gName}</span>${imgTag}`;
+    } else {
+        profileDiv.innerHTML = '<span>Guest User</span>';
+    }
 }
 
 function gapiLoaded() {
@@ -524,8 +535,19 @@ function gisLoaded() {
             syncBtn.innerText = "☁️ Synced";
             syncBtn.style.backgroundColor = "#2e7d32";
             console.log("Cloud Save Enabled. Access Token acquired.");
+            
+            // Apply token immediately if GAPI is ready
+            if (typeof gapi !== 'undefined' && gapi.client && gapi.client.drive) {
+                gapi.client.setToken({access_token: resp.access_token});
+                loadCloudSave();
+            }
         },
     });
+
+    // Auto-connect if user is signed in
+    if (localStorage.getItem('user_credential') && !localStorage.getItem('google_access_token')) {
+        tokenClient.requestAccessToken({prompt: ''});
+    }
 }
 
 function restoreSession() {
@@ -656,6 +678,46 @@ async function uploadToCloud() {
     }
 }
 
+function saveGuestProfile() {
+    const nameInput = document.getElementById('guest-name-input');
+    const avatarInput = document.getElementById('guest-avatar-input');
+    
+    if (nameInput) localStorage.setItem('guest_name', nameInput.value);
+    
+    if (avatarInput && avatarInput.files && avatarInput.files[0]) {
+        const file = avatarInput.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const MAX_SIZE = 150; // Resize to save space
+                let width = img.width;
+                let height = img.height;
+                
+                if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } }
+                else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
+                
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                try {
+                    localStorage.setItem('guest_avatar', canvas.toDataURL('image/jpeg', 0.8));
+                    alert("Profile saved!");
+                    window.location.reload();
+                } catch(err) { alert("Storage full or error saving image."); }
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    } else {
+        alert("Profile saved!");
+        window.location.reload();
+    }
+}
+
 function openProfileModal() {
     const modal = document.getElementById('profile-modal');
     const infoDiv = document.getElementById('modal-profile-info');
@@ -679,18 +741,28 @@ function openProfileModal() {
                 <button id="btn-download-cloud" class="btn-action" onclick="loadCloudSave(true)" style="margin-top: 0.5rem; background: linear-gradient(45deg, #0277bd, #039be5);">☁️ Force Load from Cloud</button>
             `;
         } catch(e) {
-            html = `
-                <div class="profile-large-img" style="background: #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-size: 2rem;">👤</div>
-                <h2>Guest User</h2>
-                <p style="color: var(--text-secondary)">Not signed in</p>
-            `;
-            cloudDiv.style.display = 'none';
+            renderGuestModalContent();
         }
     } else {
+        renderGuestModalContent();
+    }
+    
+    function renderGuestModalContent() {
+        const gName = localStorage.getItem('guest_name') || 'Guest User';
+        const gAvatar = localStorage.getItem('guest_avatar');
+        const avatarHtml = gAvatar ? `<img src="${gAvatar}" class="profile-large-img" style="object-fit: cover;">` : `<div class="profile-large-img" style="background: #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-size: 2rem;">👤</div>`;
+        
         html = `
-            <div class="profile-large-img" style="background: #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-size: 2rem;">👤</div>
-            <h2>Guest User</h2>
-            <p style="color: var(--text-secondary)">Not signed in</p>
+            ${avatarHtml}
+            <h2>${gName}</h2>
+            <p style="color: var(--text-secondary)">Local Profile</p>
+            <div style="margin-top: 1rem; text-align: left; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px;">
+                <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 5px;">Display Name</label>
+                <input type="text" id="guest-name-input" value="${gName}" style="width: 100%; padding: 8px; margin-bottom: 15px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: white; border-radius: 4px;">
+                <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 5px;">Change Picture</label>
+                <input type="file" id="guest-avatar-input" accept="image/*" style="width: 100%; padding: 8px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: white; border-radius: 4px;">
+                <button class="btn-action" onclick="saveGuestProfile()" style="margin-top: 15px; background: linear-gradient(45deg, var(--accent-primary), var(--accent-dark));">💾 Save Profile</button>
+            </div>
         `;
         cloudDiv.style.display = 'none';
     }
