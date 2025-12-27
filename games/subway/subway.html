@@ -138,7 +138,7 @@
 
 <!-- CLOUD SAVE INTEGRATION -->
 <script src="https://apis.google.com/js/api.js"></script>
-<div id="save-indicator" style="position: fixed; top: 20px; right: 20px; background: rgba(0, 0, 0, 0.8); color: #fff; padding: 8px 16px; border-radius: 20px; font-family: 'Segoe UI', sans-serif; font-size: 14px; font-weight: 500; display: none; z-index: 9999; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(5px); box-shadow: 0 4px 6px rgba(0,0,0,0.1);">☁️ Syncing...</div>
+<div id="save-indicator" onclick="saveAndExit()" title="Save & Exit" style="cursor: pointer; position: fixed; top: 20px; right: 20px; background: rgba(0, 0, 0, 0.8); color: #fff; padding: 8px 16px; border-radius: 20px; font-family: 'Segoe UI', sans-serif; font-size: 14px; font-weight: 500; display: none; z-index: 9999; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(5px); box-shadow: 0 4px 6px rgba(0,0,0,0.1);">☁️ Syncing...</div>
 
 <script>
   const CLIENT_ID = '448742201910-98bfqv6ugof15tgdk09mjap1kmgt89lt.apps.googleusercontent.com';
@@ -240,6 +240,13 @@
               ind.style.color = '#fff';
           }, 3000);
       }
+  }
+
+  async function saveAndExit() {
+      const ind = document.getElementById('save-indicator');
+      ind.innerText = "☁️ Saving...";
+      await saveToCloud();
+      window.location.href = '../../home.html';
   }
 </script>
 
