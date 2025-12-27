@@ -215,6 +215,8 @@
             <button class="btn-action" onclick="exportGameData()">📥 Export Save Data</button>
             <button class="btn-action" onclick="document.getElementById('import-file').click()" style="margin-top: 0.5rem; background: linear-gradient(45deg, #4a148c, #7b1fa2);">📤 Import Save Data</button>
             <input type="file" id="import-file" style="display: none;" accept=".json" onchange="importGameData(this)">
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 1.5rem 0;">
+            <div id="cloud-controls" style="display:none;"></div>
         </div>
     </div>
 
@@ -291,7 +293,12 @@
             }
         }
 
-        async function loadCloudSave() {
+        async function loadCloudSave(manual = false) {
+            if(manual && !confirm("This will overwrite your local progress with data from the Cloud. Are you sure?")) return;
+            
+            const btn = document.getElementById('btn-download-cloud');
+            if(btn) btn.innerText = "⏳ Downloading...";
+
             try {
                 console.log("Checking for cloud saves...");
                 const response = await gapi.client.drive.files.list({
@@ -322,17 +329,85 @@
                         syncBtn.innerText = "☁️ Data Loaded";
                         setTimeout(() => syncBtn.innerText = originalText, 3000);
                     }
+                    
+                    if(manual) {
+                        alert("✅ Data Loaded from Cloud! The page will now reload.");
+                        window.location.reload();
+                    }
                 } else {
                     console.log('No cloud save found.');
+                    if(manual) alert("⚠️ No cloud save found.");
                 }
             } catch (err) {
                 console.error('Error loading cloud save:', err);
+                if(manual) alert("❌ Download Failed: " + err.message);
+            } finally {
+                if(btn) btn.innerText = "☁️ Force Load from Cloud";
+            }
+        }
+
+        async function uploadToCloud() {
+            if(!confirm("This will overwrite your Cloud Save with your current local progress. Are you sure?")) return;
+            
+            const btn = document.getElementById('btn-upload-cloud');
+            if(btn) btn.innerText = "⏳ Uploading...";
+
+            try {
+                const data = {};
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if(key !== 'google_access_token' && key !== 'user_credential' && key !== 'token_expiry') {
+                        data[key] = localStorage.getItem(key);
+                    }
+                }
+                const fileContent = JSON.stringify(data);
+                const fileMetadata = {
+                    'name': 'pro_games_save.json',
+                    'mimeType': 'application/json',
+                    'parents': ['appDataFolder']
+                };
+
+                const response = await gapi.client.drive.files.list({
+                    spaces: 'appDataFolder',
+                    q: "name = 'pro_games_save.json'",
+                    fields: 'files(id)'
+                });
+
+                const files = response.result.files;
+
+                if (files && files.length > 0) {
+                    const fileId = files[0].id;
+                    await gapi.client.request({
+                        path: '/upload/drive/v3/files/' + fileId,
+                        method: 'PATCH',
+                        params: { uploadType: 'media' },
+                        body: fileContent
+                    });
+                } else {
+                    const form = new FormData();
+                    form.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
+                    form.append('file', new Blob([fileContent], { type: 'application/json' }));
+
+                    await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                        method: 'POST',
+                        headers: new Headers({ 'Authorization': 'Bearer ' + gapi.client.getToken().access_token }),
+                        body: form
+                    });
+                }
+                
+                alert("✅ Saved to Cloud Successfully!");
+            } catch (e) {
+                console.error(e);
+                alert("❌ Upload Failed: " + e.message);
+            } finally {
+                if(btn) btn.innerText = "☁️ Force Save to Cloud";
             }
         }
 
         function openProfileModal() {
             const modal = document.getElementById('profile-modal');
             const infoDiv = document.getElementById('modal-profile-info');
+            const cloudDiv = document.getElementById('cloud-controls');
             const credential = localStorage.getItem('user_credential');
             
             let html = '';
@@ -344,12 +419,20 @@
                         <h2>${payload.name}</h2>
                         <p style="color: var(--text-secondary)">${payload.email}</p>
                     `;
+                    // Show cloud controls if logged in
+                    cloudDiv.style.display = 'block';
+                    cloudDiv.innerHTML = `
+                        <h3>Cloud Sync</h3>
+                        <button id="btn-upload-cloud" class="btn-action" onclick="uploadToCloud()" style="background: linear-gradient(45deg, #2e7d32, #4caf50);">☁️ Force Save to Cloud</button>
+                        <button id="btn-download-cloud" class="btn-action" onclick="loadCloudSave(true)" style="margin-top: 0.5rem; background: linear-gradient(45deg, #0277bd, #039be5);">☁️ Force Load from Cloud</button>
+                    `;
                 } catch(e) {
                     html = `
                         <div class="profile-large-img" style="background: #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-size: 2rem;">👤</div>
                         <h2>Guest User</h2>
                         <p style="color: var(--text-secondary)">Not signed in</p>
                     `;
+                    cloudDiv.style.display = 'none';
                 }
             } else {
                 html = `
@@ -357,6 +440,7 @@
                     <h2>Guest User</h2>
                     <p style="color: var(--text-secondary)">Not signed in</p>
                 `;
+                cloudDiv.style.display = 'none';
             }
             
             infoDiv.innerHTML = html;
