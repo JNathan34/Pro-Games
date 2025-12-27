@@ -156,6 +156,11 @@
       if (token && expiry && Date.now() < parseInt(expiry)) {
           gapi.client.setToken({access_token: token});
           console.log("Game: Cloud Auth Active");
+          
+          const ind = document.getElementById('save-indicator');
+          ind.style.display = 'block';
+          ind.innerText = "☁️ Cloud Active";
+
           // Start auto-save loop (every 60 seconds)
           setInterval(saveToCloud, 60000);
           // Save on exit
@@ -220,14 +225,20 @@
           // Show indicator
           ind.innerText = "☁️ Saved";
           ind.style.color = '#4caf50';
-          setTimeout(() => ind.style.display = 'none', 2000);
+          setTimeout(() => {
+              ind.innerText = "☁️ Cloud Active";
+              ind.style.color = '#fff';
+          }, 3000);
           console.log("Game saved to cloud.");
 
       } catch (e) {
           console.error("Cloud Save Error:", e);
           ind.innerText = "⚠️ Sync Failed";
           ind.style.color = '#ff5252';
-          setTimeout(() => ind.style.display = 'none', 3000);
+          setTimeout(() => {
+              ind.innerText = "☁️ Cloud Active";
+              ind.style.color = '#fff';
+          }, 3000);
       }
   }
 </script>
