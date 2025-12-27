@@ -86,6 +86,11 @@
         }
     </style>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        if (localStorage.getItem('user_credential')) {
+            window.location.href = 'home.html';
+        }
+    </script>
 </head>
 <body>
     <div class="login-container">
