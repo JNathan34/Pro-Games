@@ -1,499 +1,752 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - Pro Games 2.0</title>
-    <style>
-        :root {
-            --bg-color: #050505;
-            --card-bg: #161616;
-            --text-primary: #ffffff;
-            --text-secondary: #b0b0b0;
-            --accent: #bb86fc;
-            --accent-dark: #7c4dff;
-        }
-        body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            background: radial-gradient(circle at 50% -20%, #2d1b4e, #050505 60%);
-            color: var(--text-primary);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-        }
-        nav {
-            background-color: rgba(10, 10, 10, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(187, 134, 252, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            background: linear-gradient(45deg, #e040fb, #7c4dff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 3rem 2rem;
-        }
-        h2 {
-            font-size: 2rem;
-            margin-bottom: 2rem;
-            font-weight: 700;
-        }
-        .game-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 2rem;
-        }
-        .game-card {
-            background-color: var(--card-bg);
-            border-radius: 16px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            display: block;
-            text-decoration: none;
-            color: inherit;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .game-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 12px 30px rgba(124, 77, 255, 0.15);
-            border-color: var(--accent);
-        }
-        .game-thumbnail {
-            height: 180px;
-            background: linear-gradient(135deg, #4a148c, #7b1fa2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4rem;
-        }
-        .game-info {
-            padding: 1.5rem;
-        }
-        .game-title {
-            font-size: 1.25rem;
-            margin: 0 0 0.5rem 0;
-            font-weight: 600;
-        }
-        .game-desc {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin: 0;
-            line-height: 1.5;
-        }
-        .btn-nav {
-            color: var(--text-primary);
-            text-decoration: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 50px;
-            background-color: rgba(255, 255, 255, 0.1);
-            transition: all 0.2s;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        .btn-nav:hover {
-            background-color: var(--accent);
-            color: #000;
-            box-shadow: 0 0 15px rgba(187, 134, 252, 0.4);
-        }
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            z-index: 2000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 400px;
-            border: 1px solid rgba(187, 134, 252, 0.2);
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-            position: relative;
-            text-align: center;
-        }
-        .close-modal {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--text-secondary);
-        }
-        .close-modal:hover { color: var(--text-primary); }
-        .profile-large-img {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            margin-bottom: 1rem;
-            border: 3px solid var(--accent);
-        }
-        .btn-action {
-            background: linear-gradient(45deg, var(--accent-dark), var(--accent));
-            border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 50px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 1rem;
-            transition: transform 0.2s;
-        }
-        .btn-action:hover {
-            transform: scale(1.05);
-        }
-        #user-profile {
-            cursor: pointer;
-            padding: 5px 10px;
-            border-radius: 50px;
-            transition: background 0.2s;
-        }
-        #user-profile:hover {
-            background: rgba(255,255,255,0.1);
-        }
-    </style>
-    <script src="https://accounts.google.com/gsi/client" async defer onload="gisLoaded()"></script>
-    <script src="https://apis.google.com/js/api.js" async defer onload="gapiLoaded()"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pro Games</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://accounts.google.com/gsi/client" async defer onload="gisLoaded()"></script>
+  <script src="https://apis.google.com/js/api.js" async defer onload="gapiLoaded()"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+        --bg-dark: #111217;
+        --bg-light: #1a1b22;
+        --text-primary: #f0f0f5;
+        --text-secondary: #a0a0b0;
+        --accent-primary: #8e44ad;
+        --accent-dark: #7c4dff;
+        --accent-secondary: #c0392b;
+        --glow-color: rgba(142, 68, 173, 0.7);
+        --border-color: #2c2d3a;
+        --font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+        font-family: var(--font-family);
+        background: var(--bg-dark);
+        color: var(--text-primary);
+        padding: 20px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        overflow-x: hidden; /* Prevent horizontal scroll from glow */
+    }
+
+    /* Add background glows for depth */
+    body::before, body::after {
+        content: '';
+        position: fixed;
+        width: 50vmax;
+        height: 50vmax;
+        border-radius: 50%;
+        z-index: -1;
+        filter: blur(100px);
+        opacity: 0.15;
+    }
+    body::before {
+        top: -20vmax;
+        right: -20vmax;
+        background: radial-gradient(circle, var(--accent-primary) 0%, transparent 70%);
+    }
+    body::after {
+        bottom: -20vmax;
+        left: -20vmax;
+        background: radial-gradient(circle, #3498db 0%, transparent 70%);
+    }
+
+    /* --- NAV & USER SYSTEM STYLES --- */
+    nav {
+        background-color: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(10px);
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(142, 68, 173, 0.2);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        margin: -20px -20px 20px -20px; /* Offset body padding */
+    }
+    .logo {
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        background: linear-gradient(45deg, var(--accent-primary), #3498db);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .btn-nav {
+        color: var(--text-primary);
+        text-decoration: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 50px;
+        background-color: rgba(255, 255, 255, 0.1);
+        transition: all 0.2s;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+    }
+    .btn-nav:hover {
+        background-color: var(--accent-primary);
+        color: #fff;
+        box-shadow: 0 0 15px var(--glow-color);
+    }
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(5px);
+        z-index: 2000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-content {
+        background: var(--bg-light);
+        padding: 2rem;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 400px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        position: relative;
+        text-align: center;
+    }
+    .close-modal {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--text-secondary);
+    }
+    .close-modal:hover { color: var(--text-primary); }
+    .profile-large-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin-bottom: 1rem;
+        border: 3px solid var(--accent-primary);
+    }
+    .btn-action {
+        background: linear-gradient(45deg, var(--accent-dark), var(--accent-primary));
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 1rem;
+        transition: transform 0.2s;
+    }
+    .btn-action:hover {
+        transform: scale(1.05);
+    }
+    #user-profile {
+        cursor: pointer;
+        padding: 5px 10px;
+        border-radius: 50px;
+        transition: background 0.2s;
+    }
+    #user-profile:hover {
+        background: rgba(255,255,255,0.1);
+    }
+
+    /* --- UTILITY & SHARED BUTTON STYLES --- */
+    .fixed-btn {
+        position: fixed;
+        padding: 10px 18px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        z-index: 9999;
+        transition: all 0.2s ease-in-out;
+        background: var(--bg-light);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+    }
+    .fixed-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        border-color: var(--accent-primary);
+    }
+
+    #backToTopBtn { bottom: 20px; right: 20px; display: none; /* Hidden by default */ }
+
+    /* --- HEADER & SEARCH --- */
+    .header { text-align: center; margin-bottom: 10px; margin-top: 20px; }
+    .header h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        background: linear-gradient(90deg, var(--accent-primary), #3498db);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 30px rgba(142, 68, 173, 0.3);
+        margin: 20px 0 40px;
+    }
+
+    .search-filter-bar {
+        width: 100%;
+        max-width: 900px;
+        margin: 20px auto 40px;
+        display: flex;
+        gap: 15px;
+    }
+    .random-game-btn {
+        padding: 12px 20px;
+        background: var(--accent-primary);
+        border: none;
+        border-radius: 10px;
+        color: white;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s ease;
+        white-space: nowrap;
+    }
+    .random-game-btn:hover { background: #9b59b6; }
+
+    .search-filter-bar input, .search-filter-bar select {
+        flex: 1;
+        padding: 12px 15px;
+        background: var(--bg-light);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        color: var(--text-primary);
+        font-size: 1rem;
+        transition: border-color 0.2s ease;
+    }
+    .search-filter-bar input:focus, .search-filter-bar select:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+    }
+
+    .game-stats {
+        max-width: 900px;
+        margin: -20px auto 30px;
+        text-align: right;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        padding-right: 5px;
+    }
+
+    .game-tag {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: var(--accent-primary);
+        color: white;
+        padding: 3px 8px;
+        border-radius: 5px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        z-index: 2;
+    }
+
+    .game-card .genre-tag {
+        position: absolute;
+        top: 10px; left: 10px;
+        background: rgba(0,0,0,0.6);
+        color: #fff; padding: 3px 8px; border-radius: 5px;
+        font-size: 0.8rem; font-weight: 500; z-index: 2;
+        opacity: 0; transition: opacity 0.2s ease;
+    }
+    .game-card:hover .genre-tag { opacity: 1; }
+    .grid-title {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 50px 0 10px 0;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    /* --- GAME GRID --- */
+    .game-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 30px;
+        margin: 30px auto;
+        max-width: 1400px;
+    }
+    .game-card {
+        position: relative;
+        background: var(--bg-light);
+        border-radius: 14px;
+        overflow: hidden;
+        aspect-ratio: 5 / 7;
+        cursor: pointer;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        border: 1px solid var(--border-color);
+    }
+    .game-card:hover {
+        transform: translateY(-5px) scale(1.03);
+        box-shadow: 0 0 25px var(--glow-color);
+        border-color: var(--accent-primary);
+    }
+
+    .game-card img { width: 100%; height: 100%; object-fit: cover; }
+    .game-card .title {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        padding: 12px 10px;
+        background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+        text-align: center;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    /* --- FOOTER --- */
+    .footer { margin-top: 80px; padding-top: 40px; border-top: 1px solid var(--border-color); text-align: center; color: var(--text-secondary); }
+    .footer h2 { font-size: 1.2rem; margin-bottom: 10px; color: var(--text-primary); }
+    .footer ul { list-style: none; padding: 0; line-height: 1.8; }
+    .footer .copyright { margin-top: 30px; font-size: 0.9rem; }
+  </style>
 </head>
 <body>
-    <nav>
-        <div class="logo">Pro Games 2.0</div>
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <button id="sync-btn" class="btn-nav" style="display: none;" onclick="enableCloudSave()">☁️ Connect Cloud</button>
-            <div id="user-profile" style="display: flex; align-items: center; gap: 0.5rem;" onclick="openProfileModal()"></div>
-            <a href="index.html" class="btn-nav" onclick="localStorage.removeItem('user_credential'); localStorage.removeItem('google_access_token'); localStorage.removeItem('token_expiry');">Sign Out</a>
-        </div>
-    </nav>
 
-    <div class="container">
-        <h2>Available Games</h2>
-        <div class="game-grid">
-            <a href="games/drive/drive.html" class="game-card">
-                <div class="game-thumbnail">🚗</div>
-                <div class="game-info">
-                    <h3 class="game-title">Drive Mad</h3>
-                    <p class="game-desc">Navigate tricky tracks in this driving game.</p>
-                </div>
-            </a>
-        </div>
+<nav>
+    <div class="logo">Pro Games 2.0</div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <button id="sync-btn" class="btn-nav" style="display: none;" onclick="enableCloudSave()">☁️ Connect Cloud</button>
+        <div id="user-profile" style="display: flex; align-items: center; gap: 0.5rem;" onclick="openProfileModal()"></div>
+        <a href="index.html" class="btn-nav" onclick="localStorage.removeItem('user_credential'); localStorage.removeItem('google_access_token'); localStorage.removeItem('token_expiry');">Sign Out</a>
     </div>
+</nav>
 
-    <!-- Profile Modal -->
-    <div id="profile-modal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeProfileModal()">&times;</span>
-            <div id="modal-profile-info">
-                <!-- Populated by JS -->
-            </div>
-            <hr style="border-color: rgba(255,255,255,0.1); margin: 1.5rem 0;">
-            <h3>Data Management</h3>
-            <button class="btn-action" onclick="exportGameData()">📥 Export Save Data</button>
-            <button class="btn-action" onclick="document.getElementById('import-file').click()" style="margin-top: 0.5rem; background: linear-gradient(45deg, #4a148c, #7b1fa2);">📤 Import Save Data</button>
-            <input type="file" id="import-file" style="display: none;" accept=".json" onchange="importGameData(this)">
-            <hr style="border-color: rgba(255,255,255,0.1); margin: 1.5rem 0;">
-            <div id="cloud-controls" style="display:none;"></div>
+<button id="backToTopBtn" class="fixed-btn">Back to Top</button>
+
+<div class="header"><h1>Pro Games</h1></div>
+
+<div class="search-filter-bar">
+  <input type="text" id="searchInput" placeholder="Search games...">
+  <select id="genreFilter">
+    <option value="all">All Genres</option>
+    <option value="arcade">Arcade</option>
+    <option value="action">Action</option>
+    <option value="puzzle">Puzzle</option>
+    <option value="strategy">Strategy</option>
+    <option value="adventure">Adventure</option>
+    <option value="sports">Sports</option>
+  </select>
+  <button class="random-game-btn" id="randomGameBtn">Random Game</button>
+</div>
+
+<div class="game-grid" id="gameGrid"></div>
+
+<div class="footer">
+  <h2>Recommended Browsers</h2>
+  <p>For best performance use:</p>
+  <ul>
+    <li>Microsoft Edge</li>
+    <li>Opera GX</li>
+    <li>Google Chrome</li>
+  </ul>
+  <div class="copyright">
+      &copy; 2024 Pro Games. All rights reserved.
+      <p>Last Updated: <span id="lastUpdated"></span></p>
+  </div>
+</div>
+
+<!-- Profile Modal -->
+<div id="profile-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeProfileModal()">&times;</span>
+        <div id="modal-profile-info">
+            <!-- Populated by JS -->
         </div>
+        <hr style="border-color: rgba(255,255,255,0.1); margin: 1.5rem 0;">
+        <h3>Data Management</h3>
+        <button class="btn-action" onclick="exportGameData()">📥 Export Save Data</button>
+        <button class="btn-action" onclick="document.getElementById('import-file').click()" style="margin-top: 0.5rem; background: linear-gradient(45deg, #4a148c, #7b1fa2);">📤 Import Save Data</button>
+        <input type="file" id="import-file" style="display: none;" accept=".json" onchange="importGameData(this)">
+        <hr style="border-color: rgba(255,255,255,0.1); margin: 1.5rem 0;">
+        <div id="cloud-controls" style="display:none;"></div>
     </div>
+</div>
 
-    <script>
-        // Check for user credential
-        const credential = localStorage.getItem('user_credential');
-        const profileDiv = document.getElementById('user-profile');
-        const syncBtn = document.getElementById('sync-btn');
+<script>
+/* ---------------- GAMES ---------------- */
+const games = [
+    { title: "Crossy Road", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/crossyroad.png", url: "games/crossyroad/crossyroad.html", genre: "arcade", tags: [] },
+    { title: "Minecraft", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/minecraft.png", url: "games/minecraft/minecraft.html", genre: "adventure", tags: [] },
+    { title: "Block Towers", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/block.png", url: "games/block/block.html", genre: "puzzle", tags: [] },
+    { title: "Snake", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/snake.png", url: "games/snake/snake.html", genre: "arcade", tags: [] },
+    { title: "Subway Surfers", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/subway.png", url: "games/subway/subway.html", genre: "arcade", tags: [] },
+    { title: "Among Us", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/among.png", url: "games/among/among.html", genre: "strategy", tags: [] },
+    { title: "Chess", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/chess.png", url: "games/chess/chess.html", genre: "strategy", tags: [] },
+    { title: "FNAF", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/fnaf.png", url: "games/fnaf/fnaf.html", genre: "strategy", tags: [] },
+    { title: "BitLife", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/bit.png", url: "games/bit/bit.html", genre: "strategy", tags: [] },
+    { title: "Tomb of the Mask", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/tomb.png", url: "games/tomb/tomb.html", genre: "arcade", tags: [] },
+    { title: "Slope", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/slope.png", url: "games/slope/slope.html", genre: "arcade", tags: [] },
+    { title: "Grow a Garden", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/grow.png", url: "games/grow/grow.html", genre: "puzzle", tags: [] },
+    { title: "Hill Climb Racing", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/hill.png", url: "games/hill/hill.html", genre: "arcade", tags: [] },
+    { title: "1v1 LOL", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/lol.png", url: "games/lol/lol.html", genre: "action", tags: [] },
+    { title: "Monkey Mart", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/monkey.png", url: "games/monkey/monkey.html", genre: "strategy", tags: [] },
+    { title: "Temple Run", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/temple.png", url: "games/temple/temple.html", genre: "arcade", tags: [] },
+    { title: "Zombie Road", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/zombie.png", url: "games/zombie/zombie.html", genre: "action", tags: [] },
+    { title: "Zombie Rush", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/zombie2.png", url: "games/zombie2/zombie2.html", genre: "action", tags: [] },
+    { title: "99 Nights in the Forest", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/99.png", url: "games/99/99.html", genre: "adventure", tags: [] },
+    { title: "Escape Road", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/escape.png", url: "games/escape/escape.html", genre: "puzzle", tags: [] },
+    { title: "Drive Mad", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/drive.png", url: "games/drive/drive.html", genre: "puzzle", tags: [] },
+    { title: "8 Ball Pool", img: "https://raw.githubusercontent.com/JNathan34/Pro-Games/main/images/8.png", url: "games/8/8.html", genre: "sports", tags: [] }
+];
+
+// Bypass auth for all games since TFA is removed
+localStorage.setItem("authenticated", "true");
+localStorage.setItem("authExpires", Date.now() + 31536000000000); // 1000 years
+
+const grid = document.getElementById("gameGrid");
+
+function createGameCard(game) {
+    const card = document.createElement("a");
+    card.href = game.url;
+    card.className = "game-card";
+
+    const genre = game.genre.charAt(0).toUpperCase() + game.genre.slice(1);
+    const tagsHTML = `<div class="genre-tag">${genre}</div>`;
+
+    card.innerHTML = `${tagsHTML}<img src="${game.img}" alt="${game.title}"><div class="title">${game.title}</div>`;
+    return card;
+}
+
+function renderGames(){
+    const searchInput = document.getElementById("searchInput");
+    const genreFilter = document.getElementById("genreFilter");
+
+    const search = searchInput.value.toLowerCase();
+    const filter = genreFilter.value;
+
+    // Save search and filter to session storage
+    sessionStorage.setItem('gameSearch', search);
+    sessionStorage.setItem('gameFilter', filter);
+
+    grid.innerHTML="";
+    const filteredGames = games
+        .filter(g => g.title.toLowerCase().includes(search))
+        .filter(g => filter === "all" || g.genre === filter);
+
+    filteredGames.forEach(g => grid.appendChild(createGameCard(g)));
+
+}
+
+// Restore search/filter from session storage and render
+document.getElementById("searchInput").value = sessionStorage.getItem('gameSearch') || '';
+document.getElementById("genreFilter").value = sessionStorage.getItem('gameFilter') || 'all';
+
+document.getElementById("searchInput").addEventListener("input",renderGames);
+document.getElementById("genreFilter").addEventListener("change",renderGames);
+renderGames();
+
+/* ---------------- RANDOM GAME ---------------- */
+document.getElementById("randomGameBtn").addEventListener("click", () => {
+    const randomGame = games[Math.floor(Math.random() * games.length)];
+    window.location.href = randomGame.url;
+});
+
+/* ---------------- FOOTER ---------------- */
+document.getElementById('lastUpdated').textContent = new Date(document.lastModified).toLocaleDateString();
+
+/* ---------------- BACK TO TOP BUTTON ---------------- */
+const backToTopBtn = document.getElementById('backToTopBtn');
+
+window.onscroll = () => {
+    if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+        backToTopBtn.style.display = "block";
+    } else {
+        backToTopBtn.style.display = "none";
+    }
+};
+
+backToTopBtn.onclick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+/* ---------------- GOOGLE LOGIN & CLOUD SAVE ---------------- */
+// Check for user credential
+const credential = localStorage.getItem('user_credential');
+const profileDiv = document.getElementById('user-profile');
+const syncBtn = document.getElementById('sync-btn');
+
+// Google Drive API Configuration
+const CLIENT_ID = '448742201910-98bfqv6ugof15tgdk09mjap1kmgt89lt.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
+let tokenClient;
+
+if (credential) {
+    try {
+        // Decode JWT payload (Base64Url -> Base64 -> JSON)
+        const payload = JSON.parse(atob(credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+        profileDiv.innerHTML = `
+            <span>${payload.name}</span>
+            <img src="${payload.picture}" alt="Profile" style="width: 32px; height: 32px; border-radius: 50%;">
+        `;
+        syncBtn.style.display = 'block';
+    } catch (e) {
+        profileDiv.innerHTML = '<span>Guest User</span>';
+    }
+} else {
+    profileDiv.innerHTML = '<span>Guest User</span>';
+}
+
+function gapiLoaded() {
+    gapi.load('client', async () => {
+        await gapi.client.init({
+            discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+        });
+        restoreSession();
+    });
+}
+
+function gisLoaded() {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: CLIENT_ID,
+        scope: SCOPES,
+        callback: (resp) => {
+            if (resp.error !== undefined) {
+                throw (resp);
+            }
+            const expiry = Date.now() + (resp.expires_in * 1000);
+            localStorage.setItem('google_access_token', resp.access_token);
+            localStorage.setItem('token_expiry', expiry);
+
+            syncBtn.innerText = "☁️ Synced";
+            syncBtn.style.backgroundColor = "#2e7d32";
+            console.log("Cloud Save Enabled. Access Token acquired.");
+        },
+    });
+}
+
+function restoreSession() {
+    const token = localStorage.getItem('google_access_token');
+    const expiry = localStorage.getItem('token_expiry');
+    if (token && expiry && Date.now() < parseInt(expiry)) {
+        gapi.client.setToken({access_token: token});
+        syncBtn.innerText = "☁️ Synced";
+        syncBtn.style.backgroundColor = "#2e7d32";
+        loadCloudSave(); // Load data when session is restored
+    }
+}
+
+function enableCloudSave() {
+    if (tokenClient) {
+        tokenClient.requestAccessToken({prompt: 'consent'});
+    }
+}
+
+async function loadCloudSave(manual = false) {
+    if(manual && !confirm("This will overwrite your local progress with data from the Cloud. Are you sure?")) return;
+    
+    const btn = document.getElementById('btn-download-cloud');
+    if(btn) btn.innerText = "⏳ Downloading...";
+
+    try {
+        console.log("Checking for cloud saves...");
+        const response = await gapi.client.drive.files.list({
+            spaces: 'appDataFolder',
+            q: "name = 'pro_games_save.json'",
+            fields: 'files(id, modifiedTime)'
+        });
         
-        // Google Drive API Configuration
-        const CLIENT_ID = '448742201910-98bfqv6ugof15tgdk09mjap1kmgt89lt.apps.googleusercontent.com';
-        const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
-        let tokenClient;
-
-        if (credential) {
-            try {
-                // Decode JWT payload (Base64Url -> Base64 -> JSON)
-                const payload = JSON.parse(atob(credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-                profileDiv.innerHTML = `
-                    <span>${payload.name}</span>
-                    <img src="${payload.picture}" alt="Profile" style="width: 32px; height: 32px; border-radius: 50%;">
-                `;
-                syncBtn.style.display = 'block';
-            } catch (e) {
-                profileDiv.innerHTML = '<span>Guest User</span>';
+        const files = response.result.files;
+        if (files && files.length > 0) {
+            const fileId = files[0].id;
+            const fileContent = await gapi.client.drive.files.get({
+                fileId: fileId,
+                alt: 'media'
+            });
+            const data = fileContent.result;
+            const saveData = (typeof data === 'string') ? JSON.parse(data) : data;
+            
+            for (const key in saveData) {
+                localStorage.setItem(key, saveData[key]);
+            }
+            console.log('Cloud save loaded successfully.');
+            
+            // Visual feedback
+            const syncBtn = document.getElementById('sync-btn');
+            if(syncBtn) {
+                const originalText = syncBtn.innerText;
+                syncBtn.innerText = "☁️ Data Loaded";
+                setTimeout(() => syncBtn.innerText = originalText, 3000);
+            }
+            
+            if(manual) {
+                alert("✅ Data Loaded from Cloud! The page will now reload.");
+                window.location.reload();
             }
         } else {
-            profileDiv.innerHTML = '<span>Guest User</span>';
+            console.log('No cloud save found.');
+            if(manual) alert("⚠️ No cloud save found.");
         }
+    } catch (err) {
+        console.error('Error loading cloud save:', err);
+        if(manual) alert("❌ Download Failed: " + err.message);
+    } finally {
+        if(btn) btn.innerText = "☁️ Force Load from Cloud";
+    }
+}
 
-        function gapiLoaded() {
-            gapi.load('client', async () => {
-                await gapi.client.init({
-                    discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
-                });
-                restoreSession();
-            });
-        }
+async function uploadToCloud() {
+    if(!confirm("This will overwrite your Cloud Save with your current local progress. Are you sure?")) return;
+    
+    const btn = document.getElementById('btn-upload-cloud');
+    if(btn) btn.innerText = "⏳ Uploading...";
 
-        function gisLoaded() {
-            tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: CLIENT_ID,
-                scope: SCOPES,
-                callback: (resp) => {
-                    if (resp.error !== undefined) {
-                        throw (resp);
-                    }
-                    const expiry = Date.now() + (resp.expires_in * 1000);
-                    localStorage.setItem('google_access_token', resp.access_token);
-                    localStorage.setItem('token_expiry', expiry);
-
-                    syncBtn.innerText = "☁️ Synced";
-                    syncBtn.style.backgroundColor = "#2e7d32";
-                    console.log("Cloud Save Enabled. Access Token acquired.");
-                    // Future: Implement actual localStorage upload here
-                },
-            });
-        }
-
-        function restoreSession() {
-            const token = localStorage.getItem('google_access_token');
-            const expiry = localStorage.getItem('token_expiry');
-            if (token && expiry && Date.now() < parseInt(expiry)) {
-                gapi.client.setToken({access_token: token});
-                syncBtn.innerText = "☁️ Synced";
-                syncBtn.style.backgroundColor = "#2e7d32";
-                loadCloudSave(); // Load data when session is restored
-            }
-        }
-
-        function enableCloudSave() {
-            if (tokenClient) {
-                tokenClient.requestAccessToken({prompt: 'consent'});
-            }
-        }
-
-        async function loadCloudSave(manual = false) {
-            if(manual && !confirm("This will overwrite your local progress with data from the Cloud. Are you sure?")) return;
-            
-            const btn = document.getElementById('btn-download-cloud');
-            if(btn) btn.innerText = "⏳ Downloading...";
-
-            try {
-                console.log("Checking for cloud saves...");
-                const response = await gapi.client.drive.files.list({
-                    spaces: 'appDataFolder',
-                    q: "name = 'pro_games_save.json'",
-                    fields: 'files(id, modifiedTime)'
-                });
-                
-                const files = response.result.files;
-                if (files && files.length > 0) {
-                    const fileId = files[0].id;
-                    const fileContent = await gapi.client.drive.files.get({
-                        fileId: fileId,
-                        alt: 'media'
-                    });
-                    const data = fileContent.result;
-                    const saveData = (typeof data === 'string') ? JSON.parse(data) : data;
-                    
-                    for (const key in saveData) {
-                        localStorage.setItem(key, saveData[key]);
-                    }
-                    console.log('Cloud save loaded successfully.');
-                    
-                    // Visual feedback
-                    const syncBtn = document.getElementById('sync-btn');
-                    if(syncBtn) {
-                        const originalText = syncBtn.innerText;
-                        syncBtn.innerText = "☁️ Data Loaded";
-                        setTimeout(() => syncBtn.innerText = originalText, 3000);
-                    }
-                    
-                    if(manual) {
-                        alert("✅ Data Loaded from Cloud! The page will now reload.");
-                        window.location.reload();
-                    }
-                } else {
-                    console.log('No cloud save found.');
-                    if(manual) alert("⚠️ No cloud save found.");
-                }
-            } catch (err) {
-                console.error('Error loading cloud save:', err);
-                if(manual) alert("❌ Download Failed: " + err.message);
-            } finally {
-                if(btn) btn.innerText = "☁️ Force Load from Cloud";
-            }
-        }
-
-        async function uploadToCloud() {
-            if(!confirm("This will overwrite your Cloud Save with your current local progress. Are you sure?")) return;
-            
-            const btn = document.getElementById('btn-upload-cloud');
-            if(btn) btn.innerText = "⏳ Uploading...";
-
-            try {
-                const data = {};
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if(key !== 'google_access_token' && key !== 'user_credential' && key !== 'token_expiry') {
-                        data[key] = localStorage.getItem(key);
-                    }
-                }
-                const fileContent = JSON.stringify(data);
-                const fileMetadata = {
-                    'name': 'pro_games_save.json',
-                    'mimeType': 'application/json',
-                    'parents': ['appDataFolder']
-                };
-
-                const response = await gapi.client.drive.files.list({
-                    spaces: 'appDataFolder',
-                    q: "name = 'pro_games_save.json'",
-                    fields: 'files(id)'
-                });
-
-                const files = response.result.files;
-
-                if (files && files.length > 0) {
-                    const fileId = files[0].id;
-                    await gapi.client.request({
-                        path: '/upload/drive/v3/files/' + fileId,
-                        method: 'PATCH',
-                        params: { uploadType: 'media' },
-                        body: fileContent
-                    });
-                } else {
-                    const form = new FormData();
-                    form.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
-                    form.append('file', new Blob([fileContent], { type: 'application/json' }));
-
-                    await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-                        method: 'POST',
-                        headers: new Headers({ 'Authorization': 'Bearer ' + gapi.client.getToken().access_token }),
-                        body: form
-                    });
-                }
-                
-                alert("✅ Saved to Cloud Successfully!");
-            } catch (e) {
-                console.error(e);
-                alert("❌ Upload Failed: " + e.message);
-            } finally {
-                if(btn) btn.innerText = "☁️ Force Save to Cloud";
-            }
-        }
-
-        function openProfileModal() {
-            const modal = document.getElementById('profile-modal');
-            const infoDiv = document.getElementById('modal-profile-info');
-            const cloudDiv = document.getElementById('cloud-controls');
-            const credential = localStorage.getItem('user_credential');
-            
-            let html = '';
-            if (credential) {
-                try {
-                    const payload = JSON.parse(atob(credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-                    html = `
-                        <img src="${payload.picture}" class="profile-large-img">
-                        <h2>${payload.name}</h2>
-                        <p style="color: var(--text-secondary)">${payload.email}</p>
-                    `;
-                    // Show cloud controls if logged in
-                    cloudDiv.style.display = 'block';
-                    cloudDiv.innerHTML = `
-                        <h3>Cloud Sync</h3>
-                        <button id="btn-upload-cloud" class="btn-action" onclick="uploadToCloud()" style="background: linear-gradient(45deg, #2e7d32, #4caf50);">☁️ Force Save to Cloud</button>
-                        <button id="btn-download-cloud" class="btn-action" onclick="loadCloudSave(true)" style="margin-top: 0.5rem; background: linear-gradient(45deg, #0277bd, #039be5);">☁️ Force Load from Cloud</button>
-                    `;
-                } catch(e) {
-                    html = `
-                        <div class="profile-large-img" style="background: #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-size: 2rem;">👤</div>
-                        <h2>Guest User</h2>
-                        <p style="color: var(--text-secondary)">Not signed in</p>
-                    `;
-                    cloudDiv.style.display = 'none';
-                }
-            } else {
-                html = `
-                    <div class="profile-large-img" style="background: #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-size: 2rem;">👤</div>
-                    <h2>Guest User</h2>
-                    <p style="color: var(--text-secondary)">Not signed in</p>
-                `;
-                cloudDiv.style.display = 'none';
-            }
-            
-            infoDiv.innerHTML = html;
-            modal.style.display = 'flex';
-        }
-
-        function closeProfileModal() {
-            document.getElementById('profile-modal').style.display = 'none';
-        }
-
-        function exportGameData() {
-            const data = {};
-            // Collect all local storage items
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
+    try {
+        const data = {};
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if(key !== 'google_access_token' && key !== 'user_credential' && key !== 'token_expiry') {
                 data[key] = localStorage.getItem(key);
             }
-            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'pro_games_backup_' + new Date().toISOString().slice(0,10) + '.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
         }
+        const fileContent = JSON.stringify(data);
+        const fileMetadata = {
+            'name': 'pro_games_save.json',
+            'mimeType': 'application/json',
+            'parents': ['appDataFolder']
+        };
 
-        function importGameData(input) {
-            const file = input.files[0];
-            if (!file) return;
+        const response = await gapi.client.drive.files.list({
+            spaces: 'appDataFolder',
+            q: "name = 'pro_games_save.json'",
+            fields: 'files(id)'
+        });
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    for (const key in data) {
-                        localStorage.setItem(key, data[key]);
-                    }
-                    alert('Game data imported successfully! The page will now reload.');
-                    window.location.reload();
-                } catch (error) {
-                    alert('Error importing data: Invalid JSON file.');
-                }
-            };
-            reader.readAsText(file);
+        const files = response.result.files;
+
+        if (files && files.length > 0) {
+            const fileId = files[0].id;
+            await gapi.client.request({
+                path: '/upload/drive/v3/files/' + fileId,
+                method: 'PATCH',
+                params: { uploadType: 'media' },
+                body: fileContent
+            });
+        } else {
+            const form = new FormData();
+            form.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
+            form.append('file', new Blob([fileContent], { type: 'application/json' }));
+
+            await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                method: 'POST',
+                headers: new Headers({ 'Authorization': 'Bearer ' + gapi.client.getToken().access_token }),
+                body: form
+            });
         }
+        
+        alert("✅ Saved to Cloud Successfully!");
+    } catch (e) {
+        console.error(e);
+        alert("❌ Upload Failed: " + e.message);
+    } finally {
+        if(btn) btn.innerText = "☁️ Force Save to Cloud";
+    }
+}
 
-        window.onclick = function(event) {
-            const modal = document.getElementById('profile-modal');
-            if (event.target == modal) {
-                closeProfileModal();
+function openProfileModal() {
+    const modal = document.getElementById('profile-modal');
+    const infoDiv = document.getElementById('modal-profile-info');
+    const cloudDiv = document.getElementById('cloud-controls');
+    const credential = localStorage.getItem('user_credential');
+    
+    let html = '';
+    if (credential) {
+        try {
+            const payload = JSON.parse(atob(credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+            html = `
+                <img src="${payload.picture}" class="profile-large-img">
+                <h2>${payload.name}</h2>
+                <p style="color: var(--text-secondary)">${payload.email}</p>
+            `;
+            // Show cloud controls if logged in
+            cloudDiv.style.display = 'block';
+            cloudDiv.innerHTML = `
+                <h3>Cloud Sync</h3>
+                <button id="btn-upload-cloud" class="btn-action" onclick="uploadToCloud()" style="background: linear-gradient(45deg, #2e7d32, #4caf50);">☁️ Force Save to Cloud</button>
+                <button id="btn-download-cloud" class="btn-action" onclick="loadCloudSave(true)" style="margin-top: 0.5rem; background: linear-gradient(45deg, #0277bd, #039be5);">☁️ Force Load from Cloud</button>
+            `;
+        } catch(e) {
+            html = `
+                <div class="profile-large-img" style="background: #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-size: 2rem;">👤</div>
+                <h2>Guest User</h2>
+                <p style="color: var(--text-secondary)">Not signed in</p>
+            `;
+            cloudDiv.style.display = 'none';
+        }
+    } else {
+        html = `
+            <div class="profile-large-img" style="background: #333; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto; font-size: 2rem;">👤</div>
+            <h2>Guest User</h2>
+            <p style="color: var(--text-secondary)">Not signed in</p>
+        `;
+        cloudDiv.style.display = 'none';
+    }
+    
+    infoDiv.innerHTML = html;
+    modal.style.display = 'flex';
+}
+
+function closeProfileModal() {
+    document.getElementById('profile-modal').style.display = 'none';
+}
+
+function exportGameData() {
+    const data = {};
+    // Collect all local storage items
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        data[key] = localStorage.getItem(key);
+    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'pro_games_backup_' + new Date().toISOString().slice(0,10) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+function importGameData(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            for (const key in data) {
+                localStorage.setItem(key, data[key]);
             }
+            alert('Game data imported successfully! The page will now reload.');
+            window.location.reload();
+        } catch (error) {
+            alert('Error importing data: Invalid JSON file.');
         }
-    </script>
+    };
+    reader.readAsText(file);
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('profile-modal');
+    if (event.target == modal) {
+        closeProfileModal();
+    }
+}
+</script>
+
 </body>
 </html>
