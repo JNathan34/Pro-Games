@@ -23,10 +23,6 @@
             displayAd: function() {},
             destroyAd: function() {}
         };
-
-        // Force LocalStorage by disabling IndexedDB
-        // This ensures game data is saved where we can access it for cloud sync
-        window.indexedDB = null;
     </script>
 </head>
 
@@ -70,6 +66,9 @@
           gapi.client.setToken({access_token: token});
           console.log("Game: Cloud Auth Active");
           
+          // Try to restore IndexedDB data if it exists in LocalStorage dump
+          await restoreC3Data();
+          
           const ind = document.getElementById('save-indicator');
           ind.style.display = 'block';
           ind.innerText = "☁️ Cloud Active";
@@ -97,6 +96,13 @@
                   data[key] = localStorage.getItem(key);
               }
           }
+          
+          // Capture IndexedDB data
+          const idbData = await getC3Data();
+          if (idbData) {
+              data['c3_idb_dump'] = JSON.stringify(idbData);
+          }
+          
           console.log("Cloud Save - Capturing Data:", data);
           const fileContent = JSON.stringify(data);
           const fileMetadata = {
@@ -167,6 +173,78 @@
       path = path.substring(0, path.lastIndexOf('/')); // remove game folder
       path = path.substring(0, path.lastIndexOf('/')); // remove games folder
       window.location.href = path + '/home.html';
+  }
+
+  // Helper to capture Construct 3 IndexedDB data
+  async function getC3Data() {
+      if (!window.indexedDB || !window.indexedDB.databases) return null;
+      try {
+          const dbs = await window.indexedDB.databases();
+          const c3DB = dbs.find(db => db.name.includes('c3-localstorage'));
+          if (!c3DB) return null;
+
+          return new Promise((resolve) => {
+              const req = window.indexedDB.open(c3DB.name);
+              req.onsuccess = (e) => {
+                  const db = e.target.result;
+                  if (!db.objectStoreNames.contains('keyvaluepairs')) { resolve(null); return; }
+                  const tx = db.transaction('keyvaluepairs', 'readonly');
+                  const store = tx.objectStore('keyvaluepairs');
+                  const allReq = store.getAllKeys();
+                  allReq.onsuccess = () => {
+                      const keys = allReq.result;
+                      const data = {};
+                      let loaded = 0;
+                      if (keys.length === 0) { resolve({name: c3DB.name, data: {}}); return; }
+                      keys.forEach(k => {
+                          const vReq = store.get(k);
+                          vReq.onsuccess = () => {
+                              data[k] = vReq.result;
+                              loaded++;
+                              if (loaded === keys.length) resolve({name: c3DB.name, data: data});
+                          };
+                      });
+                  };
+              };
+              req.onerror = () => resolve(null);
+          });
+      } catch (e) { console.error(e); return null; }
+  }
+
+  // Helper to restore C3 IndexedDB data from LocalStorage dump
+  async function restoreC3Data() {
+      const dumpStr = localStorage.getItem('c3_idb_dump');
+      if (!dumpStr) return;
+      
+      try {
+          const dump = JSON.parse(dumpStr);
+          const dbName = dump.name;
+          const data = dump.data;
+          
+          return new Promise((resolve) => {
+              const req = window.indexedDB.open(dbName);
+              req.onupgradeneeded = (e) => {
+                  const db = e.target.result;
+                  if (!db.objectStoreNames.contains('keyvaluepairs')) {
+                      db.createObjectStore('keyvaluepairs');
+                  }
+              };
+              req.onsuccess = (e) => {
+                  const db = e.target.result;
+                  const tx = db.transaction('keyvaluepairs', 'readwrite');
+                  const store = tx.objectStore('keyvaluepairs');
+                  
+                  Object.keys(data).forEach(k => {
+                      store.put(data[k], k);
+                  });
+                  
+                  tx.oncomplete = () => {
+                      console.log("Game: Restored IndexedDB from Cloud Dump");
+                      resolve();
+                  };
+              };
+          });
+      } catch (e) { console.error("Failed to restore IDB", e); }
   }
 </script>
 
