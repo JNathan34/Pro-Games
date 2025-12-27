@@ -23,6 +23,10 @@
             displayAd: function() {},
             destroyAd: function() {}
         };
+
+        // Force LocalStorage by disabling IndexedDB
+        // This ensures game data is saved where we can access it for cloud sync
+        window.indexedDB = null;
     </script>
 </head>
 
@@ -93,6 +97,7 @@
                   data[key] = localStorage.getItem(key);
               }
           }
+          console.log("Cloud Save - Capturing Data:", data);
           const fileContent = JSON.stringify(data);
           const fileMetadata = {
               'name': 'pro_games_save.json',
