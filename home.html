@@ -566,13 +566,33 @@ function gisLoaded() {
                 gapi.client.setToken({access_token: resp.access_token});
                 loadCloudSave();
             }
+            scheduleTokenRefresh(resp.expires_in);
         },
     });
 
     // Auto-connect if user is signed in
-    if (localStorage.getItem('user_credential') && !localStorage.getItem('google_access_token')) {
+    const token = localStorage.getItem('google_access_token');
+    const expiry = localStorage.getItem('token_expiry');
+    const isTokenValid = token && expiry && Date.now() < parseInt(expiry);
+
+    if (localStorage.getItem('user_credential') && !isTokenValid) {
         tokenClient.requestAccessToken({prompt: ''});
     }
+}
+
+let tokenRefreshTimeout;
+function scheduleTokenRefresh(expiresInSeconds) {
+    if (tokenRefreshTimeout) clearTimeout(tokenRefreshTimeout);
+    // Refresh 5 minutes before expiry to keep session alive
+    let refreshTime = (expiresInSeconds - 300) * 1000;
+    if (refreshTime < 0) refreshTime = 5000; // If expiring soon, refresh in 5s
+
+    tokenRefreshTimeout = setTimeout(() => {
+        if (localStorage.getItem('user_credential') && tokenClient) {
+            console.log("Refreshing cloud session...");
+            tokenClient.requestAccessToken({prompt: ''});
+        }
+    }, refreshTime);
 }
 
 function restoreSession() {
@@ -583,6 +603,7 @@ function restoreSession() {
         syncBtn.innerText = "☁️ Synced";
         syncBtn.style.backgroundColor = "#2e7d32";
         loadCloudSave(); // Load data when session is restored
+        scheduleTokenRefresh((parseInt(expiry) - Date.now()) / 1000);
     }
 }
 
