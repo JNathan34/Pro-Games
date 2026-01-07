@@ -75,28 +75,22 @@
 		// Block popups
 		window.open = function() { 
 			console.log("Blocked popup"); 
-			return { focus: function() {}, blur: function() {}, close: function() {} }; 
+			return { focus: function() {}, blur: function() {}, close: function() {}, closed: true }; 
 		};
 
-		// Completely replace PokiSDK to prevent any internal ad logic from running
-		// This fixes the freezing by ensuring we control the entire ad lifecycle
-		window.PokiSDK = {
-			init: function() { return Promise.resolve(); },
-			gameLoadingFinished: function() {},
-			gameplayStart: function() {},
-			gameplayStop: function() {},
-			commercialBreak: function(fn) {
-				if(fn) try { fn(); } catch(e) {}
+		// Patch PokiSDK to disable ads
+		if (window.PokiSDK) {
+			window.PokiSDK.commercialBreak = function(fn) {
+				setTimeout(function() { if(fn) fn(); }, 100);
 				return Promise.resolve();
-			},
-			rewardedBreak: function(fn) {
-				if(fn) try { fn(true); } catch(e) {}
+			};
+			window.PokiSDK.rewardedBreak = function(fn) {
+				setTimeout(function() { if(fn) fn(true); }, 100);
 				return Promise.resolve(true);
-			},
-			displayAd: function() {},
-			destroyAd: function() {},
-			setDebug: function() {}
-		};
+			};
+			window.PokiSDK.displayAd = function() {};
+			window.PokiSDK.destroyAd = function() {};
+		}
 	</script>
 </head>
 
