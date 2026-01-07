@@ -233,9 +233,8 @@
 		  
 		  // Check for token from home.html
 		  const token = localStorage.getItem('google_access_token');
-		  const expiry = localStorage.getItem('token_expiry');
 		  
-		  if (token && expiry && Date.now() < parseInt(expiry)) {
+		  if (token) {
 			  gapi.client.setToken({access_token: token});
 			  console.log("Game: Cloud Auth Active");
 			  
