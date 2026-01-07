@@ -70,7 +70,25 @@
 		}
 	</style>
 
-	<script src="patch/js/poki-sdk.js"></script>
+	<script>
+		// Mock PokiSDK to prevent ads and redirects
+		var PokiSDK = {
+			init: function() { return Promise.resolve(); },
+			gameLoadingFinished: function() {},
+			gameplayStart: function() {},
+			gameplayStop: function() {},
+			commercialBreak: function(fn) {
+				if(fn) fn();
+				return Promise.resolve();
+			},
+			rewardedBreak: function(fn) {
+				if(fn) fn(true);
+				return Promise.resolve(true);
+			},
+			displayAd: function() {},
+			destroyAd: function() {}
+		};
+	</script>
 </head>
 
 <body>
