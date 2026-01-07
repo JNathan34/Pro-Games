@@ -78,21 +78,25 @@
 			return { focus: function() {}, blur: function() {}, close: function() {} }; 
 		};
 
-		// Patch PokiSDK to disable ads
-		if (window.PokiSDK) {
-			window.PokiSDK.commercialBreak = function(fn) {
-				return new Promise(function(resolve) {
-					setTimeout(function() { if(fn) fn(); resolve(); }, 500);
-				});
-			};
-			window.PokiSDK.rewardedBreak = function(fn) {
-				return new Promise(function(resolve) {
-					setTimeout(function() { if(fn) fn(true); resolve(true); }, 500);
-				});
-			};
-			window.PokiSDK.displayAd = function() {};
-			window.PokiSDK.destroyAd = function() {};
-		}
+		// Completely replace PokiSDK to prevent any internal ad logic from running
+		// This fixes the freezing by ensuring we control the entire ad lifecycle
+		window.PokiSDK = {
+			init: function() { return Promise.resolve(); },
+			gameLoadingFinished: function() {},
+			gameplayStart: function() {},
+			gameplayStop: function() {},
+			commercialBreak: function(fn) {
+				if(fn) try { fn(); } catch(e) {}
+				return Promise.resolve();
+			},
+			rewardedBreak: function(fn) {
+				if(fn) try { fn(true); } catch(e) {}
+				return Promise.resolve(true);
+			},
+			displayAd: function() {},
+			destroyAd: function() {},
+			setDebug: function() {}
+		};
 	</script>
 </head>
 
