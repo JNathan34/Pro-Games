@@ -70,24 +70,17 @@
 		}
 	</style>
 
+	<script src="patch/js/poki-sdk.js"></script>
 	<script>
-		// Mock PokiSDK to prevent ads and redirects
-		var PokiSDK = {
-			init: function() { return Promise.resolve(); },
-			gameLoadingFinished: function() {},
-			gameplayStart: function() {},
-			gameplayStop: function() {},
-			commercialBreak: function(fn) {
-				if(fn) fn();
-				return Promise.resolve();
-			},
-			rewardedBreak: function(fn) {
-				if(fn) fn(true);
-				return Promise.resolve(true);
-			},
-			displayAd: function() {},
-			destroyAd: function() {}
-		};
+		// Block popups
+		window.open = function() { console.log("Blocked popup"); return null; };
+
+		// Patch PokiSDK to disable ads
+		if (window.PokiSDK) {
+			window.PokiSDK.commercialBreak = function(fn) { if(fn) fn(); return Promise.resolve(); };
+			window.PokiSDK.rewardedBreak = function(fn) { if(fn) fn(true); return Promise.resolve(true); };
+			window.PokiSDK.displayAd = function() {};
+		}
 	</script>
 </head>
 
