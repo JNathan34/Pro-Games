@@ -80,13 +80,15 @@
 
 		// Patch PokiSDK to disable ads
 		if (window.PokiSDK) {
-			window.PokiSDK.commercialBreak = function(fn) { 
-				setTimeout(function() { if(fn) fn(); }, 50); 
-				return Promise.resolve(); 
+			window.PokiSDK.commercialBreak = function(fn) {
+				return new Promise(function(resolve) {
+					setTimeout(function() { if(fn) fn(); resolve(); }, 500);
+				});
 			};
-			window.PokiSDK.rewardedBreak = function(fn) { 
-				setTimeout(function() { if(fn) fn(true); }, 50); 
-				return Promise.resolve(true); 
+			window.PokiSDK.rewardedBreak = function(fn) {
+				return new Promise(function(resolve) {
+					setTimeout(function() { if(fn) fn(true); resolve(true); }, 500);
+				});
 			};
 			window.PokiSDK.displayAd = function() {};
 			window.PokiSDK.destroyAd = function() {};
