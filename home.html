@@ -296,6 +296,49 @@
         box-shadow: 0 0 25px var(--glow-color);
         border-color: var(--accent-primary);
     }
+    
+    .favorites-carousel {
+        display: flex;
+        gap: 20px;
+        overflow-x: auto;
+        padding: 20px 5px;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 30px;
+    }
+    .favorites-carousel::-webkit-scrollbar { height: 8px; }
+    .favorites-carousel::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 4px; }
+    .favorites-carousel::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
+    .favorites-carousel .game-card {
+        min-width: 200px; width: 200px; flex-shrink: 0;
+    }
+
+    .fav-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0,0,0,0.6);
+        border: none;
+        color: #fff;
+        font-size: 1.2rem;
+        cursor: pointer;
+        z-index: 10;
+        border-radius: 50%;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    .fav-btn:hover {
+        background: rgba(255, 0, 0, 0.8);
+        transform: scale(1.1);
+    }
+    .fav-btn.active {
+        color: #ff4757;
+        background: rgba(255, 255, 255, 0.9);
+    }
 
     .game-card img { width: 100%; height: 100%; object-fit: cover; }
     .game-card .title {
@@ -347,6 +390,11 @@
     <option value="sports">Sports</option>
   </select>
   <button class="random-game-btn" id="randomGameBtn">Random Game</button>
+</div>
+
+<div id="favorites-section" style="display: none; max-width: 1400px; margin: 0 auto;">
+    <h2 class="grid-title" style="margin-top: 0; border-bottom: none;">Your Favorites</h2>
+    <div class="favorites-carousel" id="favoritesCarousel"></div>
 </div>
 
 <div class="game-grid" id="gameGrid"></div>
@@ -422,7 +470,11 @@ function createGameCard(game) {
     const genre = game.genre.charAt(0).toUpperCase() + game.genre.slice(1);
     const tagsHTML = `<div class="genre-tag">${genre}</div>`;
 
-    card.innerHTML = `${tagsHTML}<img src="${game.img}" alt="${game.title}"><div class="title">${game.title}</div>`;
+    const isFav = getFavorites().includes(game.title);
+    const heartClass = isFav ? "fav-btn active" : "fav-btn";
+    const heartIcon = isFav ? "❤️" : "🤍";
+
+    card.innerHTML = `${tagsHTML}<button class="${heartClass}" onclick="toggleFavorite(event, '${game.title}')">${heartIcon}</button><img src="${game.img}" alt="${game.title}"><div class="title">${game.title}</div>`;
     return card;
 }
 
@@ -440,7 +492,10 @@ function renderGames(){
     grid.innerHTML="";
     const filteredGames = games
         .filter(g => g.title.toLowerCase().includes(search))
-        .filter(g => filter === "all" || g.genre === filter);
+        .filter(g => {
+            if (filter === "all") return true;
+            return g.genre === filter;
+        });
 
     filteredGames.forEach(g => grid.appendChild(createGameCard(g)));
 
@@ -453,6 +508,52 @@ document.getElementById("genreFilter").value = sessionStorage.getItem('gameFilte
 document.getElementById("searchInput").addEventListener("input",renderGames);
 document.getElementById("genreFilter").addEventListener("change",renderGames);
 renderGames();
+renderFavorites();
+
+function renderFavorites() {
+    const favs = getFavorites();
+    const container = document.getElementById('favoritesCarousel');
+    const section = document.getElementById('favorites-section');
+
+    if (favs.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+    container.innerHTML = '';
+    const favGames = games.filter(g => favs.includes(g.title));
+    favGames.forEach(g => container.appendChild(createGameCard(g)));
+}
+
+function getFavorites() {
+    try {
+        return JSON.parse(localStorage.getItem('favorite_games')) || [];
+    } catch { return []; }
+}
+
+function toggleFavorite(e, title) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const favs = getFavorites();
+    const index = favs.indexOf(title);
+    
+    if (index === -1) {
+        favs.push(title);
+    } else {
+        favs.splice(index, 1);
+    }
+    
+    localStorage.setItem('favorite_games', JSON.stringify(favs));
+    renderGames();
+    renderFavorites();
+    
+    // Sync if logged in
+    if(localStorage.getItem('google_access_token')) {
+        uploadToCloud(true);
+    }
+}
 
 /* ---------------- BACKGROUND MUSIC ---------------- */
 const bgMusic = document.getElementById('bg-music');
@@ -641,6 +742,8 @@ async function loadCloudSave(manual = false) {
                 localStorage.setItem(key, saveData[key]);
             }
             console.log('Cloud save loaded successfully.');
+            renderGames();
+            renderFavorites();
             
             // Visual feedback
             const syncBtn = document.getElementById('sync-btn');
@@ -666,11 +769,11 @@ async function loadCloudSave(manual = false) {
     }
 }
 
-async function uploadToCloud() {
-    if(!confirm("This will overwrite your Cloud Save with your current local progress. Are you sure?")) return;
+async function uploadToCloud(silent = false) {
+    if(!silent && !confirm("This will overwrite your Cloud Save with your current local progress. Are you sure?")) return;
     
     const btn = document.getElementById('btn-upload-cloud');
-    if(btn) btn.innerText = "⏳ Uploading...";
+    if(btn && !silent) btn.innerText = "⏳ Uploading...";
 
     try {
         const data = {};
@@ -715,12 +818,13 @@ async function uploadToCloud() {
             });
         }
         
-        alert("✅ Saved to Cloud Successfully!");
+        if(!silent) alert("✅ Saved to Cloud Successfully!");
+        else console.log("Cloud save synced silently.");
     } catch (e) {
         console.error(e);
-        alert("❌ Upload Failed: " + e.message);
+        if(!silent) alert("❌ Upload Failed: " + e.message);
     } finally {
-        if(btn) btn.innerText = "☁️ Force Save to Cloud";
+        if(btn && !silent) btn.innerText = "☁️ Force Save to Cloud";
     }
 }
 
