@@ -1,0 +1,201 @@
+<!-- Ultimate Game Stash file--> 
+<!-- For the regularly updating doc go to https://docs.google.com/document/d/1_FmH3BlSBQI7FGgAQL59-ZPe8eCxs35wel6JUyVaG8Q/ -->
+<!-- made by genizy -->
+
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <base href="https://cdn.jsdelivr.net/gh/genizy/dmad-poki@49b5ab6b987f5f3be58f9dae59c92e8fc1aab9b0/">
+  <script>
+  window.assgdd = {
+    "ancestorOrigins": {
+        "0": "https://games.poki.com",
+        "1": "https://poki.com"
+    },
+    "href": "https://f9564e4e-ef25-4e4b-ba67-cb11a1576bbd.poki-gdn.com/cc1bc57a-e355-4696-97c2-097bf6188606/index.html?country=US&url_referrer=https%3A%2F%2Fpoki.com%2F&site_id=3&iso_lang=en&poki_url=https%3A%2F%2Fpoki.com%2Fen%2Fg%2Fdrive-mad&hoist=yes&nonPersonalized=n&cloudsavegames=n&familyFriendly=n&categories=78%2C93%2C96%2C103%2C377%2C390%2C400%2C893%2C929%2C1126%2C1139%2C1140%2C1141%2C1143%2C1147%2C1163%2C1185%2C1190%2C1193%2C1197&special_condition=landing&game_id=f9564e4e-ef25-4e4b-ba67-cb11a1576bbd&game_version_id=cc1bc57a-e355-4696-97c2-097bf6188606&inspector=0",
+    "origin": "https://f9564e4e-ef25-4e4b-ba67-cb11a1576bbd.poki-gdn.com",
+    "protocol": "https:",
+    "host": "f9564e4e-ef25-4e4b-ba67-cb11a1576bbd.poki-gdn.com",
+    "hostname": "f9564e4e-ef25-4e4b-ba67-cb11a1576bbd.poki-gdn.com",
+    "port": "",
+    "pathname": "/cc1bc57a-e355-4696-97c2-097bf6188606/index.html",
+    "search": "?country=US&url_referrer=https%3A%2F%2Fpoki.com%2F&site_id=3&iso_lang=en&poki_url=https%3A%2F%2Fpoki.com%2Fen%2Fg%2Fdrive-mad&hoist=yes&nonPersonalized=n&cloudsavegames=n&familyFriendly=n&categories=78%2C93%2C96%2C103%2C377%2C390%2C400%2C893%2C929%2C1126%2C1139%2C1140%2C1141%2C1143%2C1147%2C1163%2C1185%2C1190%2C1193%2C1197&special_condition=landing&game_id=f9564e4e-ef25-4e4b-ba67-cb11a1576bbd&game_version_id=cc1bc57a-e355-4696-97c2-097bf6188606&inspector=0",
+    "hash": ""
+}
+  </script>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+  <title>Drive Mad</title>
+  <meta name="description" content="">
+  <meta name="google" content="notranslate">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <link rel="stylesheet" href="webapp/fancade.css">
+  <link rel="icon" href="webapp/favicon.ico">
+
+  <!-- POKI SDK -->
+  <script src="poki-sdk.js" ></script>
+</head>
+
+<body id="body">
+
+  <!-- Modal dialog div -->
+  <div id="modal_parent">
+    <div id="modal_content">
+      <span id="modal_close_button">&times;</span>
+      <div id="store_link_modal_content" class="modal_inner"></div>
+      <div id="share_file_modal_content" class="modal_inner"></div>
+    </div>
+  </div>
+
+  <div id="canvas_border" class="emscripten_border">
+    <div id="play_content" class="middle center">
+      <div class="edge">
+        <div class="box">
+          <div class="black">
+            <img src="webapp/cover.jpg" class="cover">
+            <p class="title">Drive Mad</p>
+            <p class="author">Fancade</p>
+          </div>
+        </div>
+      </div>
+      <div id="progress_or_play">
+        <progress id="progress" class="loading" value="0" max="100"></progress>
+      </div>
+      <p class="description"></p>
+    </div>
+    <canvas class="emscripten" id="canvas" tabindex=-1></canvas>
+    <div id="gradient"></div>
+    <div id="webview_content"></div>
+  </div>
+
+  <!-- Manual JS, Called from WASM -->
+  <script type="text/javascript" src="webapp/source_min.js"></script>
+
+  <!-- Auto generated JS -->
+  <script type="text/javascript" src="webapp/index.js"></script>
+
+<!-- CLOUD SAVE INTEGRATION -->
+<script src="https://apis.google.com/js/api.js"></script>
+<div id="save-indicator" onclick="saveAndExit()" title="Save & Exit" style="cursor: pointer; position: fixed; top: 20px; right: 20px; background: rgba(0, 0, 0, 0.8); color: #fff; padding: 8px 16px; border-radius: 20px; font-family: 'Segoe UI', sans-serif; font-size: 14px; font-weight: 500; display: none; z-index: 9999; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(5px); box-shadow: 0 4px 6px rgba(0,0,0,0.1);">☁️ Syncing...</div>
+
+<script>
+  const CLIENT_ID = '448742201910-98bfqv6ugof15tgdk09mjap1kmgt89lt.apps.googleusercontent.com';
+  
+  // Initialize Google API
+  gapi.load('client', async () => {
+      await gapi.client.init({
+          discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+      });
+      
+      // Check for token from home.html
+      const token = localStorage.getItem('google_access_token');
+      const expiry = localStorage.getItem('token_expiry');
+      
+      if (token && expiry && Date.now() < parseInt(expiry)) {
+          gapi.client.setToken({access_token: token});
+          console.log("Game: Cloud Auth Active");
+          
+          const ind = document.getElementById('save-indicator');
+          ind.style.display = 'block';
+          ind.innerText = "☁️ Cloud Active";
+
+          // Start auto-save loop (every 60 seconds)
+          setInterval(saveToCloud, 5000);
+          // Save on exit
+          window.addEventListener('beforeunload', saveToCloud);
+      }
+  });
+
+  async function saveToCloud() {
+      const ind = document.getElementById('save-indicator');
+      try {
+          ind.innerText = "☁️ Syncing...";
+          ind.style.display = 'block';
+          ind.style.color = '#fff';
+
+          // 1. Prepare Data
+          const data = {};
+          for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i);
+              // Filter out auth tokens to avoid bloating save file
+              if(key !== 'google_access_token' && key !== 'user_credential' && key !== 'token_expiry') {
+                  data[key] = localStorage.getItem(key);
+              }
+          }
+          const fileContent = JSON.stringify(data);
+          const fileMetadata = {
+              'name': 'pro_games_save.json',
+              'mimeType': 'application/json',
+              'parents': ['appDataFolder']
+          };
+
+          // 2. Check if file exists
+          const response = await gapi.client.drive.files.list({
+              spaces: 'appDataFolder',
+              q: "name = 'pro_games_save.json'",
+              fields: 'files(id)'
+          });
+
+          const files = response.result.files;
+
+          if (files && files.length > 0) {
+              // Update existing file
+              const fileId = files[0].id;
+              await gapi.client.request({
+                  path: '/upload/drive/v3/files/' + fileId,
+                  method: 'PATCH',
+                  params: { uploadType: 'media' },
+                  body: fileContent
+              });
+          } else {
+              // Create new file
+              const form = new FormData();
+              form.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
+              form.append('file', new Blob([fileContent], { type: 'application/json' }));
+
+              await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                  method: 'POST',
+                  headers: new Headers({ 'Authorization': 'Bearer ' + gapi.client.getToken().access_token }),
+                  body: form
+              });
+          }
+
+          // Show indicator
+          ind.innerText = "☁️ Saved";
+          ind.style.color = '#4caf50';
+          setTimeout(() => {
+              ind.innerText = "☁️ Cloud Active";
+              ind.style.color = '#fff';
+          }, 3000);
+          console.log("Game saved to cloud.");
+
+      } catch (e) {
+          console.error("Cloud Save Error:", e);
+          ind.innerText = "⚠️ Sync Failed";
+          ind.style.color = '#ff5252';
+          setTimeout(() => {
+              ind.innerText = "☁️ Cloud Active";
+              ind.style.color = '#fff';
+          }, 3000);
+      }
+  }
+
+  async function saveAndExit() {
+      const ind = document.getElementById('save-indicator');
+      ind.innerText = "☁️ Saving...";
+      await saveToCloud();
+      
+      // Navigate back to home.html ignoring <base> tag
+      let path = window.location.href;
+      path = path.substring(0, path.lastIndexOf('/')); // remove filename
+      path = path.substring(0, path.lastIndexOf('/')); // remove game folder
+      path = path.substring(0, path.lastIndexOf('/')); // remove games folder
+      window.location.href = path + '/home.html';
+  }
+</script>
+
+</body>
+</html>

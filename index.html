@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Pro Games</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Pro Games is a gaming hub with quick access to popular games.">
+
+  
+    <link rel="shortcut icon" href="fav.png"/>
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: radial-gradient(circle at top right, #2d1b4e, #050505);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background-color: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(20px);
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(187, 134, 252, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 380px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        h1 {
+            margin-top: 0;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #e040fb, #7c4dff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(124, 77, 255, 0.3);
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            margin-top: 1.5rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            box-sizing: border-box;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-offline {
+            background: linear-gradient(90deg, #7c4dff, #651fff);
+            color: #ffffff;
+        }
+        .btn-offline:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(124, 77, 255, 0.4);
+        }
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 2rem 0;
+            color: #888;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid #5f6368;
+        }
+        .divider::before {
+            margin-right: 15px;
+        }
+        .divider::after {
+            margin-left: 15px;
+        }
+        .g_id_signin {
+            display: flex;
+            justify-content: center;
+            height: 44px;
+        }
+    </style>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        if (localStorage.getItem('user_credential')) {
+            window.location.href = 'home.html';
+        }
+    </script>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Pro Games</h1>
+        
+        <div id="g_id_onload"
+             data-client_id="448742201910-98bfqv6ugof15tgdk09mjap1kmgt89lt.apps.googleusercontent.com"
+             data-context="signin"
+             data-ux_mode="popup"
+             data-callback="handleCredentialResponse"
+             data-auto_prompt="false">
+        </div>
+
+        <div class="g_id_signin"
+             data-type="standard"
+             data-shape="rectangular"
+             data-theme="outline"
+             data-text="signin_with"
+             data-size="large"
+             data-logo_alignment="left">
+        </div>
+
+        <div class="divider">OR</div>
+
+        <a href="home.html" class="btn btn-offline" onclick="localStorage.removeItem('user_credential'); localStorage.removeItem('google_access_token'); localStorage.removeItem('token_expiry');">Play Offline</a>
+        <p style="margin-top: 20px; font-size: 0.8rem;">
+            <a href="https://pro-games.pages.dev/privacy.html" style="color: #ccc; text-decoration: none;">Privacy Policy</a> |
+            <a href="https://pro-games.pages.dev/terms.html" style="color: #ccc; text-decoration: none;">Terms & Conditions</a>
+        </p>
+    </div>
+
+    <script>
+        function handleCredentialResponse(response) {
+            // Store the credential so home.html can access it
+            localStorage.setItem('user_credential', response.credential);
+            // Redirect to the game page after successful login
+            window.location.href = 'home.html';
+        }
+    </script>
+</body>
+
+</html>
